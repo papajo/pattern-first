@@ -3,9 +3,11 @@
 /**
  * pattern-runner — Pattern-First AI CLI
  *
- * A thin CLI layer over pattern execution. Loads a pattern definition,
- * generates simulated product data, runs falsifiability checks via
- * a pluggable provider backend, and prints ranked results.
+ * A thin CLI layer over pattern execution. Supports:
+ *   - Product research: --keyword + --location
+ *   - Knowledge Q&A:   --question + (optional) --knowledge-dir
+ *   - Provider abstraction for pluggable backends
+ *   - Session memory for run history
  */
 
 'use strict';
@@ -18,9 +20,9 @@ const path = require('path');
 const { parseArgs, USAGE } = require('./lib/cli');
 const { loadPattern, findPattern } = require('./lib/pattern-loader');
 const { generateProducts } = require('./lib/seed-data');
-const { getProvider, listProviders, registerProvider } = require('./lib/provider');
+const { getProvider, listProviders } = require('./lib/provider');
 const { recordRun, getHistory, getAllHistory, clearMemory } = require('./lib/memory');
-const { formatReport, formatJson, formatVerbose, formatMemory } = require('./lib/formatter');
+const { formatReport, formatJson, formatVerbose, formatMemory, formatKnowledgeAnswer } = require('./lib/formatter');
 
 // ─── Main ──────────────────────────────────────────────────────────────────
 
@@ -48,7 +50,7 @@ function main() {
     process.exit(0);
   }
 
-  // Memory view mode — no execution needed
+  // Memory view mode
   if (args.memory) {
     if (args.keyword) {
       const h = getHistory(args.keyword, args.location);
@@ -70,8 +72,15 @@ function main() {
     process.exit(0);
   }
 
+  // ─── Knowledge Q&A Mode ──────────────────────────────────────────────
+  if (args.question) {
+    runKnowledgeMode(args);
+    return;  // exit inside runKnowledgeMode
+  }
+
+  // ─── Product Research Mode ───────────────────────────────────────────
   if (!args.keyword) {
-    console.error('Error: --keyword is required.\n');
+    console.error('Error: --keyword (research) or --question (knowledge) is required.\n');
     console.log(USAGE);
     process.exit(1);
   }
@@ -118,20 +127,76 @@ function main() {
     console.log(formatReport(results, args, pattern, provider));
   }
 
-  // Exit code: 0 if at least one product passed, 1 if all failed
   process.exit(results.passed.length > 0 ? 0 : 1);
 }
 
+// ─── Knowledge Mode ────────────────────────────────────────────────────────
+
+function runKnowledgeMode(args) {
+  const knowledgeDir = args.knowledgeDir
+    ? path.resolve(args.knowledgeDir)
+    : path.join(__dirname, '.knowledge', 'techcorp');
+
+  // Load pattern (knowledge or default)
+  const patternPath = args.pattern
+    ? findPattern(args.pattern)
+    : path.join(__dirname, 'patterns', 'techcorp-knowledge-assistant.json');
+
+  let pattern;
+  try {
+    if (fs.existsSync(patternPath)) {
+      pattern = loadPattern(patternPath);
+    }
+  } catch (err) {
+    // No pattern file — still run with defaults
+  }
+
+  // Use knowledge provider
+  const provider = getProvider('techcorp-knowledge');
+
+  // Answer the question
+  try {
+    const answer = provider.answerQuestion(args.question, knowledgeDir);
+    const validation = provider.validateAnswer(args.question, answer, knowledgeDir);
+
+    if (args.format === 'json') {
+      console.log(JSON.stringify({ answer, validation, pattern: pattern?.name || 'TechCorpKnowledgeAssistant' }, null, 2));
+    } else {
+      console.log(formatKnowledgeAnswer(args.question, answer, validation, provider));
+    }
+
+    process.exit(validation.passed ? 0 : 1);
+  } catch (err) {
+    console.error(`Error: ${err.message}`);
+    process.exit(1);
+  }
+}
+
+// ─── Utilities ─────────────────────────────────────────────────────────────
+
 function listPatterns() {
+  // Check both root and patterns/ directory
   const patternsDir = path.join(__dirname, 'patterns');
-  if (!fs.existsSync(patternsDir)) {
-    console.log('No patterns directory found. Default pattern used: pattern-schema-test-results.json');
+  const files = [];
+
+  if (fs.existsSync(patternsDir)) {
+    const dirFiles = fs.readdirSync(patternsDir).filter(f => f.endsWith('.json'));
+    files.push(...dirFiles.map(f => `  ${f.replace('.json', '')}    (patterns/)`));
+  }
+
+  // Root patterns
+  if (fs.existsSync(path.join(__dirname, 'pattern-schema-test-results.json'))) {
+    files.push('  mvp-research     (root)');
+  }
+
+  if (files.length === 0) {
+    console.log('No pattern files found.');
     return;
   }
-  const files = fs.readdirSync(patternsDir).filter(f => f.endsWith('.json'));
+
   console.log('Available patterns:');
   for (const f of files) {
-    console.log(`  - ${f.replace('.json', '')}`);
+    console.log(f);
   }
 }
 
@@ -141,9 +206,7 @@ function listAvailableProviders() {
   for (const p of providers) {
     console.log(`  ${p.id} — ${p.name}`);
     console.log(`    ${p.description}`);
-    if (p.capabilities.length > 0) {
-      console.log(`    Capabilities: ${p.capabilities.join(', ')}`);
-    }
+    console.log(`    Type: ${p.type}, Capabilities: ${(p.capabilities || []).join(', ')}`);
     console.log('');
   }
 }

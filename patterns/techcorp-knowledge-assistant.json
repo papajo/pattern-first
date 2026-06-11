@@ -1,0 +1,55 @@
+{
+  "name": "TechCorpKnowledgeAssistant",
+  "version": "0.1.0",
+  "description": "AI-powered knowledge assistant that answers questions about TechCorp using only approved internal documents.",
+
+  "intent": {
+    "goal": "Given a natural language question about TechCorp, return a precise answer with citations from official company documents.",
+
+    "success_criteria": [
+      {
+        "id": "C1",
+        "metric": "Citation Present",
+        "condition": "must be greater than or equal to",
+        "value": 1,
+        "check_type": "boolean",
+        "description": "Every answer must cite at least one source document and section"
+      },
+      {
+        "id": "C2",
+        "metric": "Confidence Score",
+        "condition": "must be greater than or equal to",
+        "value": 50,
+        "check_type": "boolean",
+        "description": "Answer confidence must be >= 50% based on keyword match strength"
+      },
+      {
+        "id": "C3",
+        "metric": "Knowledge Base Access",
+        "condition": "must be greater than or equal to",
+        "value": 1,
+        "check_type": "boolean",
+        "description": "At least one document must be loaded from the knowledge base"
+      }
+    ],
+
+    "failure_looks_like": {
+      "criteria": [
+        {"id": "C1", "metric": "Citation Present", "failure_condition": "no citations found — answer is not grounded in documents"},
+        {"id": "C2", "metric": "Confidence Score", "failure_condition": "confidence too low — answer may be unreliable"},
+        {"id": "C3", "metric": "Knowledge Base Access", "failure_condition": "no documents loaded — check knowledge base path"}
+      ]
+    }
+  },
+
+  "constraints": {
+    "data_access": ["TechCorp internal knowledge base (.knowledge/techcorp/)"],
+    "required_inputs": ["natural language question"],
+    "output_format": "Answer with document citations",
+    "invariants": [
+      "Never invent facts not present in documents",
+      "Never use external knowledge about TechCorp",
+      "Every claim must have a document reference"
+    ]
+  }
+}

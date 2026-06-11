@@ -14,7 +14,7 @@
 | 0.1 | Initialize git repo, configure `.gitignore` | ✅ Done | `.atl/`, `node_modules`, `files.zip`, `big-picture.md`, `redesign-thoughts.md`, `.memory/` excluded |
 | 0.2 | Verify remote origin (`git@github.com:papajo/pattern-first.git`) | ✅ Done | |
 | 0.3 | Clean up stray / duplicate files | ✅ Done | Removed `pattern.schema copy.json` |
-| 0.4 | Organize file tree: `docs/`, `schemas/`, `patterns/` structure | 🔄 Revise | `lib/`, `examples/`, `docs/`, `templates/` created. `schemas/` and `patterns/` pending. |
+| 0.4 | Organize file tree: `docs/`, `schemas/`, `patterns/` structure | 🔄 Revise | `lib/`, `examples/`, `docs/`, `templates/`, `patterns/`, `.knowledge/` created. `schemas/` pending. |
 | 0.5 | **First commit + push** — project scaffold + core docs | ✅ DONE | Commit `638e79c` |
 
 ---
@@ -40,150 +40,140 @@
 
 ## 🔷 Milestone 2: CLI Wrapper & Usability (The User Experience)
 
-**Goal:** Abstract away technical complexity of the JSON contract — no user should ever edit a schema file directly.
+**Goal:** Abstract away technical complexity of the JSON contract.
 
 | ID | Task | Status | Dependencies | Notes |
 |---|---|---|---|---|
-| 2.1 | **Design CLI interface contract** | ✅ Done | 1.1 | Flags defined: `--keyword`, `--location`, `--pattern`, `--format`, `--verbose`, `--help`, `--list-patterns` |
-| 2.2 | **Build thin CLI wrapper** (Node.js, zero deps) | ✅ Done | 2.1 | `pattern-runner` executable + `lib/` modules (cli, checks, seed-data, formatter, pattern-loader) |
-| 2.3 | **CLI output formatting** | ✅ Done | 2.2 | Three modes: table (ANSI-colored), verbose (per-check), JSON (machine-readable) |
-| 2.4 | **Template / example files** | ✅ Done | 2.2 | `examples/` with 4 ready-to-run scripts |
-| 2.5 | **Install script** | ☐ TODO | 2.2 | One-command setup (brew / npm / pip). For now: clone + `ln -s` |
+| 2.1-2.4 | CLI built (flags, lib, formatting, examples) | ✅ Done | — | `pattern-runner`, `lib/`, `examples/` |
+| 2.5 | **Install script** | ☐ TODO | 2.2 | One-command setup (brew / npm / pip) |
 
 ---
 
-## 🔷 Milestone 3: Pattern Infrastructure & Versioning (The "Developer" View)
+## 🔷 Milestone 3: Pattern Infrastructure & Versioning
 
-**Goal:** Prepare the system for multiple patterns, versioned contracts, and architectural growth.
+**Goal:** Multiple patterns, versioned contracts, architectural growth.
 
-| ID | Task | Status | Dependencies | Notes |
-|---|---|---|---|---|
-| 3.1 | **Add `version` field to pattern schema** | ☐ TODO | — | `"version": "0.1"` root field. Process for creating new versions. |
-| 3.2 | **Restructure repo into pattern library** | ☐ TODO | 3.1 | Move current file to `patterns/mvp_research_v1.0.json`. CLI `--pattern` flag already supports this. |
-| 3.3 | **Formalize pattern.schema.json (v0.1)** | 🔄 Revise | — | Schema exists. Review for completeness. |
-| 3.4 | **Create `schemas/interview.schema.json`** | ☐ TODO | 3.3 | Schema for interview.yaml output. |
-| 3.5 | **Create `schemas/runtime.schema.json`** | ☐ TODO | 3.3 | Schema for runtime execution config. |
-| 3.6 | **Establish pattern lifecycle docs** | ☐ TODO | 3.3 | How to create, version, deprecate, and archive patterns. |
-| 3.7 | **Remove duplicate `pattern.schema copy.json`** | ✅ Done | — | Cleaned up in M0.3. |
+| ID | Task | Status | Notes |
+|---|---|---|---|
+| 3.1-3.7 | Various pattern infra tasks | 🔄 Mixed | Schema exists. Versioning, lifecycle, interview schema pending. |
 
 ---
 
-## 🔷 Milestone 4: Operational Intelligence (The "Refinement" View)
+## 🔷 Milestone 4: Operational Intelligence
 
-**Goal:** Turn simple failures into actionable insights — the pattern doesn't just fail, it explains *why*.
+**Goal:** Turn failures into actionable insights.
 
-| ID | Task | Status | Dependencies | Notes |
-|---|---|---|---|---|
-| 4.1 | **Automated failure analysis in CLI** | ✅ Done | 2.2, 3.3 | Implemented in `lib/checks.js` — identifies most restrictive criterion |
-| 4.2 | **Constraint Report output** | ✅ Done | 4.1 | Displayed in table output: criterion, failure count, average actual, suggestion |
-| 4.3 | **Execution trace log** | ☐ TODO | 3.3 | Per-phase log: which invariants checked, which passed/failed, how long each phase took. |
-| 4.4 | **Pattern metrics collector** | ☐ TODO | 3.3, 4.3 | Track: tokens consumed, latency, retries, success rate, constraint violation frequency. |
-
----
-
-## 🔷 Milestone 5: Compiler & Runtime (The Engine Room)
-
-**Goal:** Build the core machinery — acquisition (interview) → compiler → pattern → runtime → optimizer.
-
-| ID | Task | Status | Dependencies | Notes |
-|---|---|---|---|---|
-| 5.1 | **Compiler: interview → pattern** | ☐ TODO | 1.4, 3.3 | Convert `interview.yaml` → `pattern.yaml`. Validate constraints, resolve contradictions. |
-| 5.2 | **Runtime executor** | ☐ TODO | 2.2, 3.3 | Execute compiled patterns phase-by-phase. Enforce invariants at checkpoints. |
-| 5.3 | **Runtime memory manager** | ☐ TODO | 5.2 | Handle stateless, session, persistent, compressed strategies. |
-| 5.4 | **Phase-level rerun support** | ☐ TODO | 5.2 | User can redo one section without full rerun. |
-| 5.5 | **Human review workflow** | ☐ TODO | 5.2 | Approve / reject-section / reject-all workflow. |
-| 5.6 | **Multi-runtime support** | ☐ TODO | 5.2 | Compatible with: Claude Code, Cursor, local Ollama. |
+| ID | Task | Status | Notes |
+|---|---|---|---|
+| 4.1 | **Automated failure analysis** | ✅ Done | Constraint Report in checks engine |
+| 4.2 | **Constraint Report output** | ✅ Done | Displayed in table mode |
+| 4.3-4.4 | Trace log, metrics collector | ☐ TODO | Future |
 
 ---
 
-## 🔷 Milestone 6: Pattern Library & Ecosystem (The "Platform" View)
+## 🔷 Milestone 5: Compiler & Runtime
 
-**Goal:** The repo holds many curated patterns. Users browse, pick, and run — or author their own.
+**Goal:** Interview → compiler → pattern → runtime → optimizer.
 
-| ID | Task | Status | Dependencies | Notes |
-|---|---|---|---|---|
-| 6.1 | **Structure `patterns/` directory** | ☐ TODO | 3.2 | Subdirs: `default/`, `generated/`, `curated/` |
-| 6.2 | **MVP Research Pattern** `patterns/default/mvp_research_v1.0.json` | ☐ TODO | 3.2 | Migrate from root. |
-| 6.3 | **Competitor Analysis Pattern** | ☐ TODO | 6.1 | Second pattern: competitive weakness analysis. |
-| 6.4 | **Market Sizing Pattern** | ☐ TODO | 6.1 | Third pattern: geographic trend + market size estimation. |
-| 6.5 | **Pattern registry / index** | ☐ TODO | 6.1 | `patterns/index.json` listing available patterns with metadata. |
-| 6.6 | **Pattern search by tag** | ☐ TODO | 6.5 | `--tag docs`, `--tag research` filtering in CLI. |
+| ID | Task | Status | Notes |
+|---|---|---|---|
+| 5.1-5.6 | Compiler, executor, memory, rerun, review, multi-runtime | ☐ TODO | Core engine not yet built |
 
 ---
 
-## 🔷 Milestone 7: Benchmark & Optimization (The "Credibility" View)
+## 🔷 Milestone 6: Pattern Library & Ecosystem
 
-**Goal:** Prove the pattern-first approach with numbers. Answer Q6-Q9 from the skeptical questions.
+**Goal:** Many curated patterns, browse, pick, run.
 
-| ID | Task | Status | Dependencies | Notes |
-|---|---|---|---|---|
-| 7.1 | **Establish benchmark methodology** | ☐ TODO | 5.2 | What we measure: tokens, latency, retries, quality score, pattern reuse frequency. |
-| 7.2 | **Prompt vs. Loop vs. Pattern benchmark** | ☐ TODO | 7.1, 5.2 | Same task executed 3 ways. Measure all 5 metrics. |
-| 7.3 | **Pattern compression optimizer** | ☐ TODO | 7.2 | Reduce pattern size via token dedup, invariant consolidation. |
-| 7.4 | **Pattern drift detection** | ☐ TODO | 7.2 | Detect when pattern output quality degrades across runs. |
-| 7.5 | **Pattern evolution / distillation** | ☐ TODO | 7.3 | When a pattern stabilizes, distill into a smaller model. |
+| ID | Task | Status | Notes |
+|---|---|---|---|
+| 6.1 | **Structure `patterns/` directory** | ✅ Done | Contains `techcorp-knowledge-assistant.json` |
+| 6.2 | **MVP Research Pattern** `patterns/mvp_research_v1.0.json` | ☐ TODO | Still at root as `pattern-schema-test-results.json` |
+| 6.3 | **TechCorp Knowledge Assistant pattern** | ✅ Done | `patterns/techcorp-knowledge-assistant.json` with 3 success criteria |
+| 6.4 | **Competitor Analysis Pattern** | ☐ TODO | Second pattern |
+| 6.5-6.7 | Registry, search, additional patterns | ☐ TODO | Future |
+
+---
+
+## 🔷 Milestone 7: Benchmark & Optimization
+
+**Goal:** Prove the approach with numbers.
+
+| ID | Task | Status | Notes |
+|---|---|---|---|
+| 7.1-7.5 | Benchmark, compression, drift, distillation | ☐ TODO | Not started |
 
 ---
 
 ## 🔷 Milestone 8: Multi-Model Orchestration
 
-**Goal:** Abstract execution backend so the same pattern runs on simulated, local, or remote LLMs.
+**Goal:** Same pattern, multiple execution backends.
 
-| ID | Task | Status | Dependencies | Notes |
-|---|---|---|---|---|
-| 8.1 | **Provider abstraction layer** | ✅ Done | 2.2 | `lib/provider.js` — registerable providers with standard `runChecks()` interface |
-| 8.2 | **Simulated provider** | ✅ Done | 8.1 | Deterministic local execution (default) |
-| 8.3 | **`--provider` CLI flag** | ✅ Done | 8.1, 2.2 | Select provider at runtime |
-| 8.4 | **`--list-providers` CLI flag** | ✅ Done | 8.1 | List available providers |
-| 8.5 | **Ollama provider** | ☐ TODO | 8.1 | Local LLM execution via Ollama |
-| 8.6 | **Provider comparison mode** | ☐ TODO | 8.1 | `--compare` — run same pattern on multiple providers side-by-side |
-| 8.7 | **Provider config / API key management** | ☐ TODO | 8.1 | `.env` or config file for API keys |
+| ID | Task | Status | Notes |
+|---|---|---|---|
+| 8.1 | **Provider abstraction layer** | ✅ Done | `lib/provider.js` — pluggable `runChecks()` interface |
+| 8.2 | **Simulated provider** | ✅ Done | Default backend |
+| 8.3 | **`--provider` / `--list-providers` flags** | ✅ Done | CLI integration |
+| 8.4 | **TechCorp Knowledge provider** | ✅ Done | `techcorp-knowledge` provider with Q&A + validation |
+| 8.5 | **Ollama / Claude / GPT providers** | ☐ TODO | External LLM backends |
 
 ---
 
 ## 🔷 Milestone 9: Intelligent Memory Systems
 
-**Goal:** Give patterns session awareness — the runtime remembers past executions and improves over time.
+**Goal:** Patterns remember past executions.
 
-| ID | Task | Status | Dependencies | Notes |
-|---|---|---|---|---|
-| 9.1 | **Session memory store** | ✅ Done | 2.2 | `lib/memory.js` — disk-backed JSON store tracking run history per keyword+location |
-| 9.2 | **`--memory` CLI flag** | ✅ Done | 9.1, 2.2 | View run history for a keyword+location |
-| 9.3 | **`--clear-memory` CLI flag** | ✅ Done | 9.1 | Clear all saved run history |
-| 9.4 | **Auto-record runs** | ✅ Done | 9.1, 2.2 | Every `pattern-runner` execution records summary in memory |
-| 9.5 | **Format: memory display** | ✅ Done | 9.1, 2.3 | `formatMemory()` — colored run history output |
-| 9.6 | **Persistent phase memory** | ☐ TODO | 9.1, 5.2 | Carry forward named state keys between phases within a run |
-| 9.7 | **Compressed memory strategy** | ☐ TODO | 9.6 | Summarize after N tokens (from schema) |
+| ID | Task | Status | Notes |
+|---|---|---|---|
+| 9.1 | **Session memory store** | ✅ Done | `lib/memory.js` — disk-backed JSON store |
+| 9.2 | **`--memory` / `--clear-memory` flags** | ✅ Done | Run history viewer |
+| 9.3 | **Auto-record runs** | ✅ Done | Every execution recorded |
+| 9.4 | **Memory output format** | ✅ Done | `formatMemory()` display |
+| 9.5-9.6 | Phase memory, compressed strategy | ☐ TODO | Future |
 
 ---
 
-## 🔷 Milestone 10: Prompt Templates & Authoring
+## 🔷 Milestone 10: RAG Knowledge Integration
 
-**Goal:** Provide fill-in-the-blank templates so users can create their own patterns without starting from scratch.
+**Goal:** Patterns retrieve and reason over local documents.
 
-| ID | Task | Status | Dependencies | Notes |
-|---|---|---|---|---|
-| 10.1 | **Pattern starter template** | ✅ Done | — | `templates/pattern-starter.json` — blank pattern with field instructions |
-| 10.2 | **Interview worksheet template** | ✅ Done | — | `templates/interview-notes.md` — fill-in-the-blank 5-act worksheet |
-| 10.3 | **Research pattern template** | ✅ Done | — | `templates/pattern-research.json` — full working example |
-| 10.4 | **Template registry / index** | ☐ TODO | 10.1-3 | `templates/index.json` listing available templates |
-| 10.5 | **Template authoring guide** | ☐ TODO | 10.1-3 | How to create and contribute templates |
+| ID | Task | Status | Notes |
+|---|---|---|---|
+| 10.1 | **Knowledge base retriever** | ✅ Done | `lib/knowledge.js` — document loader, section extractor, keyword search engine |
+| 10.2 | **Sample knowledge base** | ✅ Done | `.knowledge/techcorp/` with 3 documents (handbook, product docs, procedures) |
+| 10.3 | **`--question` / `--knowledge-dir` CLI flags** | ✅ Done | Knowledge Q&A mode in CLI |
+| 10.4 | **Answer validation checks** | ✅ Done | C1: Citation Present, C2: Confidence Score, C3: KB Access |
+| 10.5 | **Knowledge output format** | ✅ Done | `formatKnowledgeAnswer()` — answer + citations + quality verdict |
+| 10.6 | **Vector search / embedding support** | ☐ TODO | Replace keyword search with embeddings for semantic retrieval |
+| 10.7 | **Multi-knowledge-base support** | ☐ TODO | Different KBs for different patterns |
 
 ---
 
-## 🔷 Milestone 11: Production Deployment & CI/CD
+## 🔷 Milestone 11: Prompt Templates & Authoring
 
-**Goal:** Make the project installable, distributable, and continuously tested.
+**Goal:** Fill-in-the-blank starter files for new patterns.
 
-| ID | Task | Status | Dependencies | Notes |
-|---|---|---|---|---|
-| 11.1 | **Package metadata** | ✅ Done | — | `package.json` with bin entry, description, repository |
-| 11.2 | **`.gitignore` for runtime artifacts** | ✅ Done | — | Excludes `.memory/`, `.atl/`, `node_modules/` |
-| 11.3 | **GitHub Actions CI** | ☐ TODO | — | Run `node pattern-runner --help` on push |
-| 11.4 | **Dockerfile** | ☐ TODO | — | Containerized execution |
-| 11.5 | **npm publish config** | ☐ TODO | 11.1 | Prepublish checks, version bump |
-| 11.6 | **CHANGELOG.md** | ☐ TODO | — | Track releases |
-| 11.7 | **Install script (one-liner)** | ☐ TODO | — | `curl ... | bash` or `brew` |
+| ID | Task | Status | Notes |
+|---|---|---|---|
+| 11.1 | **Pattern starter template** | ✅ Done | `templates/pattern-starter.json` |
+| 11.2 | **Interview worksheet template** | ✅ Done | `templates/interview-notes.md` |
+| 11.3 | **Research pattern template** | ✅ Done | `templates/pattern-research.json` |
+| 11.4-11.5 | Registry, authoring guide | ☐ TODO | Future |
+
+---
+
+## 🔷 Milestone 12: Production Deployment & CI/CD
+
+**Goal:** Installable, distributable, continuously tested.
+
+| ID | Task | Status | Notes |
+|---|---|---|---|
+| 12.1 | **Package metadata** | ✅ Done | `package.json` with bin entry |
+| 12.2 | **`.gitignore` for runtime artifacts** | ✅ Done | Excludes `.memory/`, `.knowledge/` is tracked |
+| 12.3 | **GitHub Actions CI** | ☐ TODO | Run on push |
+| 12.4 | **Dockerfile** | ☐ TODO | Containerized execution |
+| 12.5 | **npm publish config** | ☐ TODO | Prepublish checks |
+| 12.6 | **CHANGELOG.md** | ☐ TODO | Track releases |
 
 ---
 
@@ -191,75 +181,22 @@
 
 | Area | Status | Notes |
 |---|---|---|
-| Pattern schema (`pattern.schema.json`) | ✅ Defined | v0.1, covers intent, constraints, invariants, phases, evaluation, runtime |
-| Interview method (`interview-method.md`) | ✅ Documented | 5-act interview structure |
-| Worked example (`worked-example.md`) | ✅ Documented | Full API docs pattern lifecycle |
-| From idea to pattern walkthrough | ✅ Done | `docs/from-idea-to-pattern.md` — visual pipeline guide |
-| MVP validation (`pattern-schema-test-results.json`) | ✅ Validated | ProductResearchMVP with 7 falsifiability checks |
-| **Feature analysis** | ✅ **Done** | `new-features.md` — 6-claim analysis with gaps and mapping |
-| **CLI runner** | ✅ **Built** | `pattern-runner` with 3 output modes, constraint reports, provider abstraction, memory |
-| **Provider abstraction** | ✅ **Built** | `lib/provider.js` — `simulated` provider built, pluggable architecture for future backends |
-| **Session memory** | ✅ **Built** | `lib/memory.js` — disk-backed run history per keyword+location |
-| **Templates** | ✅ **Created** | `templates/` with starter JSON, interview worksheet, research example |
-| README + user-guide | ✅ Revised | Beginner workflow, CLI reference, all flags documented |
-| Pattern library (`patterns/`) | ❌ Not started | Directory exists but empty |
+| Pattern schema | ✅ Defined | v0.1 — intent, constraints, invariants, phases, evaluation, runtime |
+| Interview method | ✅ Documented | 5-act interview structure |
+| Worked example | ✅ Documented | Full API docs pattern lifecycle |
+| From idea to pattern walkthrough | ✅ Done | `docs/from-idea-to-pattern.md` |
+| Feature analysis | ✅ Done | `new-features.md` — 6 claims analyzed |
+| **Product Research CLI** | ✅ **Built** | `pattern-runner` with checks, reports, memory, providers |
+| **Knowledge Assistant CLI** | ✅ **Built** | `--question` mode with RAG, citations, quality validation |
+| **Sample knowledge base** | ✅ **Built** | 3 TechCorp documents in `.knowledge/techcorp/` |
+| **Provider abstraction** | ✅ **Built** | 2 providers: `simulated`, `techcorp-knowledge` |
+| **Session memory** | ✅ **Built** | Disk-backed run history per keyword+location |
+| **Pattern library** | ✅ **Started** | `patterns/techcorp-knowledge-assistant.json` |
+| **Templates** | ✅ **Created** | Starter JSON, interview worksheet, research example |
+| README + user-guide | ✅ Revised | Beginner workflow, CLI reference |
 | Compiler & Runtime | ❌ Not started | Core engine missing |
-| Benchmarks | ❌ Not started | Credibility gap |
-| CI/CD, Docker, publish | ❌ Not started | M11 pending |
+| CI/CD, Docker, publish | ❌ Not started | M12 pending |
 
 ---
 
-## 🧭 Guiding Principles
-
-1. **Prompts are authoring interfaces** — Execution should run on structure, not text.
-2. **State beats context** — Persist decisions. Avoid retransmitting knowledge.
-3. **Constraints outperform instructions** — Define boundaries. Allow execution freedom.
-4. **Compile once, execute repeatedly** — Minimize repeated reasoning.
-5. **Patterns are the product** — The interview is the factory. Submit patterns, not prompts.
-
----
-
-## 📐 Architecture Reference
-
-```
-acquisition/   ← interview method, goal extraction
-    ↓
-compiler/      ← interview.yaml → pattern.yaml
-    ↓
-pattern/       ← normalized execution plans (versioned)
-    ↓
-provider/      ← pluggable execution backends (simulated, Claude, GPT, Ollama)
-    ↓
-runtime/       ← execute with invariants + memory
-    ↓
-optimizer/     ← compress, benchmark, evolve patterns
-```
-
----
-
-## ⚡ Quick Start for Contributors
-
-```bash
-# Clone & explore
-git clone git@github.com:papajo/pattern-first.git
-cd pattern-first
-
-# Start here — understand the pipeline
-cat docs/from-idea-to-pattern.md
-
-# Then run the CLI
-node pattern-runner --keyword "Your Idea" --location "US"
-
-# See available providers
-node pattern-runner --list-providers
-
-# Check run history
-node pattern-runner --keyword "Yoga Mat" --location "US" --memory
-
-# Browse templates
-ls templates/
-```
-
----
-
-*Last updated: 2026-06-11 — Major restructure: M8 (Multi-Model), M9 (Memory), M10 (Templates), M11 (Deployment) added. All 6 feature claims from new-features.md analyzed and gaps addressed.*
+*Last updated: 2026-06-11 — M10 (RAG Knowledge Integration) complete: TechCorp Knowledge Assistant built with document retriever, keyword search, answer validation, and CLI integration. Two execution modes now: product research + knowledge Q&A.*
