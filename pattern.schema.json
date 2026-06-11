@@ -1,0 +1,344 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://pattern-first-ai/schemas/pattern.schema.json",
+  "title": "Pattern",
+  "description": "A compiled execution pattern. Encodes intent as reusable decision structure rather than repeatable text.",
+  "type": "object",
+  "required": ["version", "pattern", "intent", "constraints", "invariants", "phases", "evaluation"],
+
+  "properties": {
+
+    "version": {
+      "type": "string",
+      "description": "Schema version this pattern was compiled against.",
+      "example": "0.1"
+    },
+
+    "pattern": {
+      "type": "object",
+      "description": "Identity block. Uniquely identifies this pattern across runtimes and registries.",
+      "required": ["id", "name", "compiled_at", "source"],
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique slug. Kebab-case. Used as the run key: `run pattern:<id>`",
+          "pattern": "^[a-z0-9-]+$",
+          "example": "generate-api-docs"
+        },
+        "name": {
+          "type": "string",
+          "description": "Human-readable name.",
+          "example": "Generate API Documentation"
+        },
+        "description": {
+          "type": "string",
+          "description": "One sentence: what this pattern produces and for whom."
+        },
+        "tags": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Taxonomy labels for search and composition.",
+          "example": ["docs", "code", "developer-tooling"]
+        },
+        "compiled_at": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO timestamp of compilation."
+        },
+        "source": {
+          "type": "object",
+          "description": "Trace back to the interview that produced this pattern.",
+          "required": ["interview_id", "compiler_version"],
+          "properties": {
+            "interview_id": { "type": "string" },
+            "compiler_version": { "type": "string" }
+          }
+        },
+        "extends": {
+          "type": "string",
+          "description": "Optional. ID of parent pattern this one inherits from. Enables composition.",
+          "example": "base-code-review"
+        }
+      }
+    },
+
+    "intent": {
+      "type": "object",
+      "description": "What the user wants to accomplish. Extracted verbatim from interview, then normalized.",
+      "required": ["goal", "success_looks_like"],
+      "properties": {
+        "goal": {
+          "type": "string",
+          "description": "Single declarative sentence. The north star for all execution decisions.",
+          "example": "Produce accurate, readable API documentation from source code."
+        },
+        "success_looks_like": {
+          "type": "array",
+          "description": "Concrete observable outcomes. Each item is a falsifiable statement.",
+          "items": { "type": "string" },
+          "minItems": 1,
+          "example": [
+            "Every public endpoint is documented",
+            "Examples compile without errors",
+            "A junior developer can onboard using only this output"
+          ]
+        },
+        "failure_looks_like": {
+          "type": "array",
+          "description": "Anti-goals. Conditions that, if present, mean the pattern failed regardless of other metrics.",
+          "items": { "type": "string" },
+          "example": [
+            "Documentation references internal implementation details",
+            "Examples contain placeholder values"
+          ]
+        },
+        "scope": {
+          "type": "object",
+          "description": "What is and is not in scope. Reduces ambiguity at execution time.",
+          "properties": {
+            "in": { "type": "array", "items": { "type": "string" } },
+            "out": { "type": "array", "items": { "type": "string" } }
+          }
+        }
+      }
+    },
+
+    "constraints": {
+      "type": "object",
+      "description": "Hard limits on how execution must behave. Violations are execution errors, not warnings.",
+      "properties": {
+        "latency": {
+          "type": "string",
+          "enum": ["real-time", "low", "medium", "high", "batch"],
+          "description": "Response time expectation. Drives runtime scheduling decisions.",
+          "example": "low"
+        },
+        "retries": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 5,
+          "description": "Max retry attempts per phase before the pattern halts.",
+          "default": 1
+        },
+        "human_review": {
+          "type": "string",
+          "enum": ["required", "optional", "none"],
+          "description": "Whether a human must approve output before the pattern proceeds or completes.",
+          "default": "optional"
+        },
+        "output_format": {
+          "type": "string",
+          "description": "Expected output MIME type or format identifier.",
+          "example": "text/markdown"
+        },
+        "token_budget": {
+          "type": "integer",
+          "description": "Max tokens the runtime may consume across all phases. null = unlimited.",
+          "example": 8000
+        },
+        "execution_mode": {
+          "type": "string",
+          "enum": ["sequential", "parallel", "conditional"],
+          "description": "How phases relate to each other at execution time.",
+          "default": "sequential"
+        },
+        "custom": {
+          "type": "object",
+          "description": "Domain-specific constraints not covered above. Key-value map.",
+          "additionalProperties": { "type": ["string", "number", "boolean"] }
+        }
+      }
+    },
+
+    "invariants": {
+      "type": "array",
+      "description": "Properties that must remain true across every phase of execution. If any invariant is violated, the runtime halts. These are the non-negotiables extracted from the interview.",
+      "items": {
+        "type": "object",
+        "required": ["id", "description", "check"],
+        "properties": {
+          "id": { "type": "string" },
+          "description": {
+            "type": "string",
+            "description": "Plain language statement of what must always be true.",
+            "example": "Output never includes internal system paths"
+          },
+          "check": {
+            "type": "string",
+            "enum": ["pre-phase", "post-phase", "continuous"],
+            "description": "When this invariant is evaluated."
+          },
+          "on_violation": {
+            "type": "string",
+            "enum": ["halt", "warn", "rollback"],
+            "default": "halt"
+          }
+        }
+      }
+    },
+
+    "memory": {
+      "type": "object",
+      "description": "State management contract. Defines what is remembered, where, and for how long.",
+      "properties": {
+        "strategy": {
+          "type": "string",
+          "enum": ["stateless", "session", "persistent", "compressed"],
+          "description": "stateless: no carry-over between runs. session: within one execution. persistent: survives across runs. compressed: summarized after N tokens.",
+          "default": "session"
+        },
+        "carry_forward": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Named state keys that must be passed between phases.",
+          "example": ["parsed_schema", "endpoint_list"]
+        },
+        "forget_after": {
+          "type": "string",
+          "description": "Duration after which persistent memory expires. ISO 8601 duration.",
+          "example": "P7D"
+        }
+      }
+    },
+
+    "phases": {
+      "type": "array",
+      "description": "The execution pipeline. Each phase is a discrete unit of work with defined inputs, outputs, and transition logic.",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "name", "objective", "input", "output"],
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "Short slug used in transition logic.",
+            "example": "analyze"
+          },
+          "name": {
+            "type": "string",
+            "example": "Analyze Source"
+          },
+          "objective": {
+            "type": "string",
+            "description": "Single sentence: what this phase must accomplish.",
+            "example": "Parse source code and extract all public endpoints with their signatures."
+          },
+          "input": {
+            "type": "object",
+            "description": "What this phase requires to begin.",
+            "properties": {
+              "requires": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Named keys from memory or prior phase output.",
+                "example": ["source_files"]
+              },
+              "accepts": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Optional inputs that enrich execution if present."
+              }
+            }
+          },
+          "output": {
+            "type": "object",
+            "description": "What this phase must produce.",
+            "properties": {
+              "produces": {
+                "type": "array",
+                "items": { "type": "string" },
+                "description": "Named keys written to memory for downstream phases.",
+                "example": ["endpoint_list", "type_map"]
+              },
+              "format": { "type": "string" }
+            }
+          },
+          "transitions": {
+            "type": "object",
+            "description": "Where execution goes next, based on outcome.",
+            "properties": {
+              "on_success": { "type": "string", "description": "Phase ID to execute next." },
+              "on_failure": {
+                "type": "string",
+                "enum": ["halt", "retry", "fallback"],
+                "default": "halt"
+              },
+              "on_empty": {
+                "type": "string",
+                "description": "Phase ID or action when this phase produces no output."
+              }
+            }
+          },
+          "hint": {
+            "type": "string",
+            "description": "Optional guidance for the runtime on how to approach this phase. Not an instruction prompt — a structural nudge.",
+            "example": "Preserve original parameter names exactly."
+          }
+        }
+      }
+    },
+
+    "evaluation": {
+      "type": "object",
+      "description": "How the runtime decides the pattern succeeded or failed overall.",
+      "required": ["strategy"],
+      "properties": {
+        "strategy": {
+          "type": "string",
+          "enum": ["auto", "rubric", "human", "hybrid"],
+          "description": "auto: runtime evaluates against success_looks_like. rubric: scored criteria. human: explicit approval. hybrid: auto then human if threshold not met."
+        },
+        "rubric": {
+          "type": "array",
+          "description": "Used when strategy is rubric or hybrid.",
+          "items": {
+            "type": "object",
+            "required": ["criterion", "weight", "threshold"],
+            "properties": {
+              "criterion": { "type": "string" },
+              "weight": { "type": "number", "minimum": 0, "maximum": 1 },
+              "threshold": { "type": "number", "minimum": 0, "maximum": 1 }
+            }
+          }
+        },
+        "minimum_pass_score": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Weighted score below which the pattern is considered failed.",
+          "default": 0.8
+        }
+      }
+    },
+
+    "runtime": {
+      "type": "object",
+      "description": "Execution environment preferences. All fields optional — runtime uses defaults if absent.",
+      "properties": {
+        "preferred_model": {
+          "type": "string",
+          "description": "Suggested model. Runtime may override based on token budget.",
+          "example": "claude-sonnet-4"
+        },
+        "temperature": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "0 = deterministic, 1 = creative. Most patterns should be 0–0.3.",
+          "default": 0.1
+        },
+        "compatible_runtimes": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Named executors this pattern has been validated against.",
+          "example": ["claude-code", "cursor", "local-ollama"]
+        },
+        "export_as_prompt": {
+          "type": "boolean",
+          "description": "If true, runtime can serialize this pattern back into a prompt string for tools that don't support structured execution.",
+          "default": true
+        }
+      }
+    }
+  }
+}

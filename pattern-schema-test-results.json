@@ -1,0 +1,79 @@
+{
+  "name": "ProductResearchMVP",
+  "description": "An MVP agent for automated product research, focused strictly on generating a list of keywords and ranked products based on quantifiable criteria.",
+  "intent": {
+    "goal": "Produce a list of keywords and a matching list of ranked products that meet all defined success criteria.",
+    "success_criteria": [
+      {
+        "id": "Q1",
+        "metric": "Market Share",
+        "condition": "must be greater than",
+        "value": 0.50,
+        "check_type": "boolean"
+      },
+      {
+        "id": "Q2",
+        "metric": "Search Volume",
+        "condition": "must be greater than",
+        "value": 5000,
+        "check_type": "boolean"
+      },
+      {
+        "id": "Q3",
+        "metric": "Score",
+        "condition": "must be less than",
+        "value": 10,
+        "check_type": "boolean"
+      },
+      {
+        "id": "Q4",
+        "metric": "Competition Count",
+        "condition": "must be less than",
+        "value": 5,
+        "check_type": "boolean"
+      },
+      {
+        "id": "Q5",
+        "metric": "Profit Margin",
+        "condition": "must be greater than",
+        "value": 0.30,
+        "check_type": "boolean"
+      },
+      {
+        "id": "Q6",
+        "metric": "Keyword Saturation",
+        "condition": "must be less than",
+        "value": 3,
+        "check_type": "boolean"
+      },
+      {
+        "id": "Q7",
+        "metric": "Review Volume",
+        "condition": "must be less than",
+        "value": 50,
+        "check_type": "boolean"
+      }
+    ]
+  },
+  "failure_looks_like": {
+    "criteria": [
+      {"id": "Q1", "metric": "Market Share", "failure_condition": "market share is <= 50%"},
+      {"id": "Q2", "metric": "Search Volume", "failure_condition": "search volume is <= 5,000"},
+      {"id": "Q3", "metric": "Score", "failure_condition": "score is >= 10"},
+      {"id": "Q4", "metric": "Competition Count", "failure_condition": "competition count is >= 5"},
+      {"id": "Q5", "metric": "Profit Margin", "failure_condition": "profit margin is <= 30%"},
+      {"id": "Q6", "metric": "Keyword Saturation", "failure_condition": "keyword saturation is >= 3"},
+      {"id": "Q7", "metric": "Review Volume", "failure_condition": "review volume is >= 50"}
+    ]
+  },
+  "constraints": {
+    "data_access": [
+      "Google Trends"
+    ],
+    "api_limitations": "None currently defined (NA)",
+    "required_inputs": [
+      "starting keyword",
+      "geographic location"
+    ]
+  }
+}
