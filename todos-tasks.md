@@ -25,11 +25,11 @@
 
 | ID | Task | Status | Dependencies | Notes |
 |---|---|---|---|---|
-| 1.1 | **[README.md] High-Level Guide** | 🔄 Revise | — | Focus on *workflow*, not code. Use simple language. 3-Step User Workflow: Input → Research → Results. |
-| 1.2 | **[README.md] Conceptual Flowchart** | ☐ TODO | 1.1 | Mermaid diagram of agent logic — map flow through the 7 Falsifiability checks. |
+| 1.1 | **[README.md] High-Level Guide** | ✅ Done | — | Focus on *workflow*, not code. 3-Step Workflow at top, CLI demo, simplified language. |
+| 1.2 | **[README.md] Conceptual Flowchart** | ✅ Done | 1.1 | Mermaid diagram: Input → 7 Falsifiability checks → Pass/Reject. See `README.md`. |
 | 1.3 | **[user-guide.md] Expand into real user guide** | ✅ Done | 1.0 | Expanded with CLI reference, output formats, FAQ. |
-| 1.4 | **[docs/interview-method.md] Finalize as standalone doc** | 🔄 Revise | — | Already exists. Ensure it's linked from README. |
-| 1.5 | **[docs/worked-example.md] Finalize as standalone doc** | 🔄 Revise | — | Already exists. |
+| 1.4 | **[docs/interview-method.md] Finalize as standalone doc** | 🔄 Revise | — | Already exists. Linked from README. |
+| 1.5 | **[docs/worked-example.md] Finalize as standalone doc** | 🔄 Revise | — | Already exists. Linked from README. |
 | 1.6 | **[docs/test-run-deploy.md] Finalize as standalone doc** | 🔄 Revise | — | Already exists. |
 | 1.7 | **Answer the "30 skeptical questions"** | ☐ TODO | 1.0 | `big-picture.md` contains 30 critical questions. Each needs a documented answer. |
 | 1.8 | **CONTRIBUTING.md** | ☐ TODO | 1.1 | Guidelines: submit patterns, not prompts. |
@@ -148,7 +148,7 @@
 | Test run (`test-run-deploy.md`) | ✅ Documented | Full conversation history |
 | Repository initialization | ✅ Done | Git remote set, `.gitignore` ready |
 | **First commit + push** | ✅ **DONE** | Project scaffold in main |
-| README.md | 🔄 Needs revision | Good concept, needs beginner workflow focus |
+| **README.md** | ✅ **Revised** | Beginner workflow, Mermaid flowchart, CLI demo |
 | **user-guide.md** | ✅ **Expanded** | CLI reference, output formats, FAQ |
 | **CLI wrapper (`pattern-runner`)** | ✅ **BUILT** | Zero-dependency Node.js, 3 output modes, constraint reports |
 | **Example scripts** | ✅ **CREATED** | 4 ready-to-run examples in `examples/` |
@@ -191,18 +191,13 @@ optimizer/     ← compress, benchmark, evolve patterns
 git clone git@github.com:papajo/pattern-first.git
 cd pattern-first
 
-# Review core artifacts
-cat pattern.schema.json          # The contract
-cat interview-method.md          # The process
-cat worked-example.md            # The lifecycle
-
-# Run a pattern
+# Try the CLI
 node pattern-runner --keyword "Wireless Charging Pad" --location "US"
 
-# See all options
-node pattern-runner --help
+# Or use an example script
+bash examples/run-wireless-charging-pad.sh
 ```
 
 ---
 
-*Last updated: 2026-06-11 — Milestone 2 (CLI Wrapper) complete: pattern-runner built with 3 output modes, constraint reports, example scripts.*
+*Last updated: 2026-06-11 — Milestone 1 (Documentation) complete: README revised with beginner workflow + Mermaid flowchart. M2 (CLI) and M4 (Constraint Reports) also done.*
