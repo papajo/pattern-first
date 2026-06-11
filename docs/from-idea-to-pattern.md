@@ -252,6 +252,71 @@ You get:            Ranked products that passed all 7 checks
 
 ---
 
+## When NOT to Use Pattern-First
+
+The interview → compile cycle has overhead. It pays off when you run the same pattern many times. **It wastes time when you won't.**
+
+Here are the kinds of tasks that should stay as one-off queries or simple lookups:
+
+### 1. One-off questions
+
+> "Find flights from SFO to JFK for tomorrow."
+> "Show me booking details for PNR ABC123."
+> "What's the weather in Tokyo?"
+
+These are **information retrieval** tasks, not execution patterns. You ask once, get an answer, move on. There's nothing to compile.
+
+**Do instead:** Use a search engine, an API call, or a simple LLM prompt. No pattern needed.
+
+### 2. Tasks with no repeat value
+
+> "Summarize this one PDF for a meeting tomorrow."
+> "Write a goodbye email to a departing colleague."
+> "Translate this page from Japanese."
+
+If you'll never need to do this exact thing again, the overhead of the interview (even 10 minutes) is wasted. The pattern pays off on run #3 or #4.
+
+**Do instead:** One-shot prompt or direct tool use.
+
+### 3. Exploratory / undefined work
+
+> "I don't know what I want yet, let's just see what the AI comes up with."
+
+Patterns require you to define success before execution. If you genuinely don't know what "done" looks like, any pattern you compile will be wrong. Explore first, interview second.
+
+**Do instead:** Freeform chat or brainstorming session. Come back when you have a target.
+
+### 4. Simple deterministic lookups
+
+> "What's the conversion rate for USD to EUR?"
+> "Show all open issues in this repo."
+
+These don't need AI, let alone a pattern. They need a direct data source.
+
+**Do instead:** An API client, a database query, or a shell script.
+
+### 5. When the task changes every time
+
+> "Every week I need something completely different — one week it's market research, next week it's code review, next week it's copywriting."
+
+The pattern-first approach shines when you do the **same kind of task** repeatedly with different inputs. If every request is fundamentally different, you'd need a new pattern each time — and the overhead never pays off.
+
+**Do instead:** Build patterns for the *subtasks* that repeat (e.g., "check code for security issues" as a pattern used inside different larger tasks).
+
+---
+
+### The quick litmus test
+
+Ask yourself these three questions before starting an interview:
+
+1. **Will I run this more than 3 times?** — If no, skip it.
+2. **Can I define "done" before I start?** — If no, explore first.
+3. **Is there implicit knowledge I keep re-explaining?** — If yes, that's a pattern candidate.
+
+If you answer "no" to #1 or #2, you don't need a pattern. Use a prompt, a script, or a direct query. **Not everything needs to be compiled.**
+
+---
+
 ## Try It Yourself
 
 ### If you have a prompt

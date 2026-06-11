@@ -255,9 +255,12 @@ This file is the compiler's input. The compiled `pattern.yaml` is its output.
 
 The interview → compile cycle has overhead. It is not appropriate for:
 
-- One-off tasks
-- Tasks with no repeat value
-- Tasks where the user genuinely doesn't know what they want yet (explore first, interview second)
+- One-off queries ("Find flights from SFO to JFK for tomorrow")
+- Simple lookups ("Show me booking details for PNR ABC123")
+- Tasks with no repeat value ("Summarize this one PDF")
+- Tasks where you don't know what "done" looks like yet (explore first, interview second)
+
+**The litmus test:** If you wouldn't run it more than 3 times, don't compile it.
 
 **Do not let the interview become a requirements document.**
 
