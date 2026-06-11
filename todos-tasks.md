@@ -11,10 +11,10 @@
 
 | ID | Task | Status | Notes |
 |---|---|---|---|
-| 0.1 | Initialize git repo, configure `.gitignore` | ✅ Done | `.atl/`, `node_modules`, `files.zip`, `big-picture.md`, `redesign-thoughts.md` excluded |
+| 0.1 | Initialize git repo, configure `.gitignore` | ✅ Done | `.atl/`, `node_modules`, `files.zip`, `big-picture.md`, `redesign-thoughts.md`, `.memory/` excluded |
 | 0.2 | Verify remote origin (`git@github.com:papajo/pattern-first.git`) | ✅ Done | |
 | 0.3 | Clean up stray / duplicate files | ✅ Done | Removed `pattern.schema copy.json` |
-| 0.4 | Organize file tree: `docs/`, `schemas/`, `patterns/` structure | 🔄 Revise | `lib/`, `examples/`, `docs/` created. `schemas/` and `patterns/` pending. |
+| 0.4 | Organize file tree: `docs/`, `schemas/`, `patterns/` structure | 🔄 Revise | `lib/`, `examples/`, `docs/`, `templates/` created. `schemas/` and `patterns/` pending. |
 | 0.5 | **First commit + push** — project scaffold + core docs | ✅ DONE | Commit `638e79c` |
 
 ---
@@ -34,11 +34,7 @@
 | 1.7 | **Answer the "30 skeptical questions"** | ☐ TODO | 1.0 | `big-picture.md` contains 30 critical questions. Each needs a documented answer. |
 | 1.8 | **CONTRIBUTING.md** | ☐ TODO | 1.1 | Guidelines: submit patterns, not prompts. |
 | 1.9 | **CHANGELOG.md** | ☐ TODO | 1.0 | Track changes from the start. |
-| 1.10 | **✨ [docs/from-idea-to-pattern.md] Pipeline walkthrough** | ✅ Done | — | Visual step-by-step: raw idea → interview → compiled pattern → execution → output. |
-
-**30 Skeptical Questions Reference** (`big-picture.md`):
-- Categories: Is this new? (Q1-5), Does it reduce cost? (Q6-9), Pattern behavior (Q10-15), Adoption friction (Q16-19), Trust/failure (Q20-25), Uncomfortable truths (Q26-30).
-- Each question should eventually have a documented answer in `docs/` or in the relevant artifact.
+| 1.10 | **[docs/from-idea-to-pattern.md] Pipeline walkthrough** | ✅ Done | — | Visual step-by-step: raw idea → interview → compiled pattern → execution → output. |
 
 ---
 
@@ -129,6 +125,68 @@
 
 ---
 
+## 🔷 Milestone 8: Multi-Model Orchestration
+
+**Goal:** Abstract execution backend so the same pattern runs on simulated, local, or remote LLMs.
+
+| ID | Task | Status | Dependencies | Notes |
+|---|---|---|---|---|
+| 8.1 | **Provider abstraction layer** | ✅ Done | 2.2 | `lib/provider.js` — registerable providers with standard `runChecks()` interface |
+| 8.2 | **Simulated provider** | ✅ Done | 8.1 | Deterministic local execution (default) |
+| 8.3 | **`--provider` CLI flag** | ✅ Done | 8.1, 2.2 | Select provider at runtime |
+| 8.4 | **`--list-providers` CLI flag** | ✅ Done | 8.1 | List available providers |
+| 8.5 | **Ollama provider** | ☐ TODO | 8.1 | Local LLM execution via Ollama |
+| 8.6 | **Provider comparison mode** | ☐ TODO | 8.1 | `--compare` — run same pattern on multiple providers side-by-side |
+| 8.7 | **Provider config / API key management** | ☐ TODO | 8.1 | `.env` or config file for API keys |
+
+---
+
+## 🔷 Milestone 9: Intelligent Memory Systems
+
+**Goal:** Give patterns session awareness — the runtime remembers past executions and improves over time.
+
+| ID | Task | Status | Dependencies | Notes |
+|---|---|---|---|---|
+| 9.1 | **Session memory store** | ✅ Done | 2.2 | `lib/memory.js` — disk-backed JSON store tracking run history per keyword+location |
+| 9.2 | **`--memory` CLI flag** | ✅ Done | 9.1, 2.2 | View run history for a keyword+location |
+| 9.3 | **`--clear-memory` CLI flag** | ✅ Done | 9.1 | Clear all saved run history |
+| 9.4 | **Auto-record runs** | ✅ Done | 9.1, 2.2 | Every `pattern-runner` execution records summary in memory |
+| 9.5 | **Format: memory display** | ✅ Done | 9.1, 2.3 | `formatMemory()` — colored run history output |
+| 9.6 | **Persistent phase memory** | ☐ TODO | 9.1, 5.2 | Carry forward named state keys between phases within a run |
+| 9.7 | **Compressed memory strategy** | ☐ TODO | 9.6 | Summarize after N tokens (from schema) |
+
+---
+
+## 🔷 Milestone 10: Prompt Templates & Authoring
+
+**Goal:** Provide fill-in-the-blank templates so users can create their own patterns without starting from scratch.
+
+| ID | Task | Status | Dependencies | Notes |
+|---|---|---|---|---|
+| 10.1 | **Pattern starter template** | ✅ Done | — | `templates/pattern-starter.json` — blank pattern with field instructions |
+| 10.2 | **Interview worksheet template** | ✅ Done | — | `templates/interview-notes.md` — fill-in-the-blank 5-act worksheet |
+| 10.3 | **Research pattern template** | ✅ Done | — | `templates/pattern-research.json` — full working example |
+| 10.4 | **Template registry / index** | ☐ TODO | 10.1-3 | `templates/index.json` listing available templates |
+| 10.5 | **Template authoring guide** | ☐ TODO | 10.1-3 | How to create and contribute templates |
+
+---
+
+## 🔷 Milestone 11: Production Deployment & CI/CD
+
+**Goal:** Make the project installable, distributable, and continuously tested.
+
+| ID | Task | Status | Dependencies | Notes |
+|---|---|---|---|---|
+| 11.1 | **Package metadata** | ✅ Done | — | `package.json` with bin entry, description, repository |
+| 11.2 | **`.gitignore` for runtime artifacts** | ✅ Done | — | Excludes `.memory/`, `.atl/`, `node_modules/` |
+| 11.3 | **GitHub Actions CI** | ☐ TODO | — | Run `node pattern-runner --help` on push |
+| 11.4 | **Dockerfile** | ☐ TODO | — | Containerized execution |
+| 11.5 | **npm publish config** | ☐ TODO | 11.1 | Prepublish checks, version bump |
+| 11.6 | **CHANGELOG.md** | ☐ TODO | — | Track releases |
+| 11.7 | **Install script (one-liner)** | ☐ TODO | — | `curl ... | bash` or `brew` |
+
+---
+
 ## 📊 Current Status
 
 | Area | Status | Notes |
@@ -136,17 +194,18 @@
 | Pattern schema (`pattern.schema.json`) | ✅ Defined | v0.1, covers intent, constraints, invariants, phases, evaluation, runtime |
 | Interview method (`interview-method.md`) | ✅ Documented | 5-act interview structure |
 | Worked example (`worked-example.md`) | ✅ Documented | Full API docs pattern lifecycle |
-| **From idea to pattern walkthrough** | ✅ **NEW** | `docs/from-idea-to-pattern.md` — visual pipeline guide |
+| From idea to pattern walkthrough | ✅ Done | `docs/from-idea-to-pattern.md` — visual pipeline guide |
 | MVP validation (`pattern-schema-test-results.json`) | ✅ Validated | ProductResearchMVP with 7 falsifiability checks |
-| Test run (`test-run-deploy.md`) | ✅ Documented | Full conversation history |
-| Repository initialization | ✅ Done | Git remote set, `.gitignore` ready |
-| **README.md** | ✅ **Revised** | Beginner workflow, "Start Here" section, Mermaid flowchart, CLI demo |
-| **user-guide.md** | ✅ **Expanded** | CLI reference, output formats, FAQ |
-| **CLI wrapper (`pattern-runner`)** | ✅ **BUILT** | Zero-dependency Node.js, 3 output modes, constraint reports |
-| **Example scripts** | ✅ **CREATED** | 4 ready-to-run examples in `examples/` |
-| Pattern library structure (`patterns/`) | ❌ Not started | `patterns/` directory |
+| **Feature analysis** | ✅ **Done** | `new-features.md` — 6-claim analysis with gaps and mapping |
+| **CLI runner** | ✅ **Built** | `pattern-runner` with 3 output modes, constraint reports, provider abstraction, memory |
+| **Provider abstraction** | ✅ **Built** | `lib/provider.js` — `simulated` provider built, pluggable architecture for future backends |
+| **Session memory** | ✅ **Built** | `lib/memory.js` — disk-backed run history per keyword+location |
+| **Templates** | ✅ **Created** | `templates/` with starter JSON, interview worksheet, research example |
+| README + user-guide | ✅ Revised | Beginner workflow, CLI reference, all flags documented |
+| Pattern library (`patterns/`) | ❌ Not started | Directory exists but empty |
 | Compiler & Runtime | ❌ Not started | Core engine missing |
 | Benchmarks | ❌ Not started | Credibility gap |
+| CI/CD, Docker, publish | ❌ Not started | M11 pending |
 
 ---
 
@@ -169,7 +228,9 @@ compiler/      ← interview.yaml → pattern.yaml
     ↓
 pattern/       ← normalized execution plans (versioned)
     ↓
-runtime/       ← execute, checkpoint, enforce invariants
+provider/      ← pluggable execution backends (simulated, Claude, GPT, Ollama)
+    ↓
+runtime/       ← execute with invariants + memory
     ↓
 optimizer/     ← compress, benchmark, evolve patterns
 ```
@@ -189,10 +250,16 @@ cat docs/from-idea-to-pattern.md
 # Then run the CLI
 node pattern-runner --keyword "Your Idea" --location "US"
 
-# Or use an example script
-bash examples/run-wireless-charging-pad.sh
+# See available providers
+node pattern-runner --list-providers
+
+# Check run history
+node pattern-runner --keyword "Yoga Mat" --location "US" --memory
+
+# Browse templates
+ls templates/
 ```
 
 ---
 
-*Last updated: 2026-06-11 — Added from-idea-to-pattern.md walkthrough. M1 (docs) and M2 (CLI) complete. M4 (constraint reports) also done.*
+*Last updated: 2026-06-11 — Major restructure: M8 (Multi-Model), M9 (Memory), M10 (Templates), M11 (Deployment) added. All 6 feature claims from new-features.md analyzed and gaps addressed.*

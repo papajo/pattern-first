@@ -3,15 +3,9 @@
 /**
  * pattern-runner — Pattern-First AI CLI
  *
- * Usage:
- *   pattern-runner --keyword "Wireless Charging Pad" --location "US"
- *   pattern-runner --keyword "Yoga Mat" --location "US" --verbose
- *   pattern-runner --keyword "Coffee Maker" --location "DE" --format json
- *   pattern-runner --help
- *
  * A thin CLI layer over pattern execution. Loads a pattern definition,
- * generates simulated product data (Google Trends proxy), runs falsifiability
- * checks, and prints ranked results.
+ * generates simulated product data, runs falsifiability checks via
+ * a pluggable provider backend, and prints ranked results.
  */
 
 'use strict';
@@ -24,8 +18,9 @@ const path = require('path');
 const { parseArgs, USAGE } = require('./lib/cli');
 const { loadPattern, findPattern } = require('./lib/pattern-loader');
 const { generateProducts } = require('./lib/seed-data');
-const { runChecks } = require('./lib/checks');
-const { formatReport, formatJson, formatVerbose } = require('./lib/formatter');
+const { getProvider, listProviders, registerProvider } = require('./lib/provider');
+const { recordRun, getHistory, getAllHistory, clearMemory } = require('./lib/memory');
+const { formatReport, formatJson, formatVerbose, formatMemory } = require('./lib/formatter');
 
 // ─── Main ──────────────────────────────────────────────────────────────────
 
@@ -39,6 +34,39 @@ function main() {
 
   if (args.listPatterns) {
     listPatterns();
+    process.exit(0);
+  }
+
+  if (args.listProviders) {
+    listAvailableProviders();
+    process.exit(0);
+  }
+
+  if (args.clearMemory) {
+    clearMemory();
+    console.log('Session memory cleared.');
+    process.exit(0);
+  }
+
+  // Memory view mode — no execution needed
+  if (args.memory) {
+    if (args.keyword) {
+      const h = getHistory(args.keyword, args.location);
+      if (!h) {
+        console.log(`No history for "${args.keyword}" in "${args.location}".`);
+        process.exit(0);
+      }
+      console.log(formatMemory(h, args));
+    } else {
+      const all = getAllHistory();
+      if (all.length === 0) {
+        console.log('No run history yet. Run a pattern first.');
+        process.exit(0);
+      }
+      for (const h of all) {
+        console.log(`${h.keyword} (${h.location}) — ${h.runCount} runs, ${h.totalPassed} passed, ${h.totalFailed} failed`);
+      }
+    }
     process.exit(0);
   }
 
@@ -61,20 +89,33 @@ function main() {
     process.exit(1);
   }
 
+  // Select provider
+  const provider = getProvider(args.provider);
+
   // Generate product data
   const location = args.location || 'US';
   const products = generateProducts(args.keyword, location, { count: 10 });
 
-  // Run checks
-  const results = runChecks(products, pattern);
+  // Run checks via provider
+  const results = provider.runChecks(products, pattern);
+
+  // Record run in session memory
+  recordRun({
+    keyword: args.keyword,
+    location: location,
+    pattern: pattern.name || 'Unnamed',
+    provider: provider.id,
+    summary: results.summary,
+    args,
+  });
 
   // Output
   if (args.format === 'json') {
-    console.log(formatJson(results, args));
+    console.log(formatJson(results, args, provider));
   } else if (args.verbose) {
-    console.log(formatVerbose(results, args, pattern));
+    console.log(formatVerbose(results, args, pattern, provider));
   } else {
-    console.log(formatReport(results, args, pattern));
+    console.log(formatReport(results, args, pattern, provider));
   }
 
   // Exit code: 0 if at least one product passed, 1 if all failed
@@ -91,6 +132,19 @@ function listPatterns() {
   console.log('Available patterns:');
   for (const f of files) {
     console.log(`  - ${f.replace('.json', '')}`);
+  }
+}
+
+function listAvailableProviders() {
+  const providers = listProviders();
+  console.log('Available execution providers:');
+  for (const p of providers) {
+    console.log(`  ${p.id} — ${p.name}`);
+    console.log(`    ${p.description}`);
+    if (p.capabilities.length > 0) {
+      console.log(`    Capabilities: ${p.capabilities.join(', ')}`);
+    }
+    console.log('');
   }
 }
 

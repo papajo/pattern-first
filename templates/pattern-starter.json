@@ -1,0 +1,39 @@
+{
+  "$schema": "../pattern.schema.json",
+  "name": "Your Pattern Name",
+  "version": "0.1.0",
+  "description": "One sentence: what this pattern produces and for whom.",
+
+  "intent": {
+    "goal": "In one declarative sentence — what does this need to produce?",
+
+    "success_criteria": [
+      {
+        "id": "C1",
+        "metric": "First Measurable Metric",
+        "condition": "must be greater than",
+        "value": 0,
+        "check_type": "boolean"
+      },
+      {
+        "id": "C2",
+        "metric": "Second Measurable Metric",
+        "condition": "must be less than",
+        "value": 100,
+        "check_type": "boolean"
+      }
+    ],
+
+    "failure_looks_like": {
+      "criteria": [
+        {"id": "C1", "metric": "First Metric", "failure_condition": "condition is not met"}
+      ]
+    }
+  },
+
+  "constraints": {
+    "data_access": ["List your data sources here"],
+    "required_inputs": ["What must the user provide?"],
+    "output_format": "Describe the expected output format"
+  }
+}

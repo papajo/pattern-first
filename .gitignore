@@ -2,5 +2,10 @@
 .atl/
 files.zip
 node_modules
+
+# Design notes (not part of the shipped product)
 big-picture.md
 redesign-thoughts.md
+
+# Runtime artifacts
+.memory/
