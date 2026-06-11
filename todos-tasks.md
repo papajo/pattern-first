@@ -13,9 +13,9 @@
 |---|---|---|---|
 | 0.1 | Initialize git repo, configure `.gitignore` | ✅ Done | `.atl/`, `node_modules`, `files.zip`, `big-picture.md`, `redesign-thoughts.md` excluded |
 | 0.2 | Verify remote origin (`git@github.com:papajo/pattern-first.git`) | ✅ Done | |
-| 0.3 | Clean up stray / duplicate files | ☐ TODO | `pattern.schema copy.json` → delete or archive |
-| 0.4 | Organize file tree: `docs/`, `patterns/`, `schemas/` structure | ☐ TODO | Per big-picture.md architecture |
-| 0.5 | **First commit + push** — project scaffold + core docs | ✅ DONE | Commit `bc25f23` |
+| 0.3 | Clean up stray / duplicate files | ✅ Done | Removed `pattern.schema copy.json` |
+| 0.4 | Organize file tree: `docs/`, `schemas/`, `patterns/` structure | 🔄 Revise | `lib/`, `examples/` created. `docs/` and `schemas/` folders pending. |
+| 0.5 | **First commit + push** — project scaffold + core docs | ✅ DONE | Commit `638e79c` |
 
 ---
 
@@ -25,13 +25,13 @@
 
 | ID | Task | Status | Dependencies | Notes |
 |---|---|---|---|---|
-| 1.1 | **[README.md] High-Level Guide** | 🔄 Revise | — | Focus on *workflow*, not code. Use simple language ("The Super-Rigorous Checklist"). 3-Step User Workflow: Input → Research → Results. |
+| 1.1 | **[README.md] High-Level Guide** | 🔄 Revise | — | Focus on *workflow*, not code. Use simple language. 3-Step User Workflow: Input → Research → Results. |
 | 1.2 | **[README.md] Conceptual Flowchart** | ☐ TODO | 1.1 | Mermaid diagram of agent logic — map flow through the 7 Falsifiability checks. |
-| 1.3 | **[user-guide.md] Expand into real user guide** | ☐ TODO | 1.0 | Currently a stub. Must cover: installation, first run, interpreting results, troubleshooting. |
-| 1.4 | **[docs/interview-method.md] Finalize as standalone doc** | 🔄 Revise | — | Already exists. Ensure it's linked from README and lives under `docs/`. |
-| 1.5 | **[docs/worked-example.md] Finalize as standalone doc** | 🔄 Revise | — | Already exists. Lives under `docs/`. Add side-by-side comparison table. |
-| 1.6 | **[docs/test-run-deploy.md] Finalize as standalone doc** | 🔄 Revise | — | Already exists. Lives under `docs/`. |
-| 1.7 | **Answer the "30 skeptical questions"** | ☐ TODO | 1.0 | `big-picture.md` contains 30 critical questions that a skeptical engineer would ask. Each needs a documented answer in the repo. |
+| 1.3 | **[user-guide.md] Expand into real user guide** | ✅ Done | 1.0 | Expanded with CLI reference, output formats, FAQ. |
+| 1.4 | **[docs/interview-method.md] Finalize as standalone doc** | 🔄 Revise | — | Already exists. Ensure it's linked from README. |
+| 1.5 | **[docs/worked-example.md] Finalize as standalone doc** | 🔄 Revise | — | Already exists. |
+| 1.6 | **[docs/test-run-deploy.md] Finalize as standalone doc** | 🔄 Revise | — | Already exists. |
+| 1.7 | **Answer the "30 skeptical questions"** | ☐ TODO | 1.0 | `big-picture.md` contains 30 critical questions. Each needs a documented answer. |
 | 1.8 | **CONTRIBUTING.md** | ☐ TODO | 1.1 | Guidelines: submit patterns, not prompts. |
 | 1.9 | **CHANGELOG.md** | ☐ TODO | 1.0 | Track changes from the start. |
 
@@ -47,11 +47,20 @@
 
 | ID | Task | Status | Dependencies | Notes |
 |---|---|---|---|---|
-| 2.1 | **Design CLI interface contract** | ☐ TODO | 1.1 | Define flags: `--keyword`, `--location`, `--pattern`, `--output`, `--verbose` |
-| 2.2 | **Build thin CLI wrapper** (Node.js or Python) | ☐ TODO | 2.1 | Wraps pattern execution logic. `pattern-runner.py --keyword "X" --location "US"` loads the pattern, runs checks, prints clean results. |
-| 2.3 | **CLI output formatting** | ☐ TODO | 2.2 | Colored output, progress indicators, machine-readable JSON mode (`--format json`) |
-| 2.4 | **Template / example files** | ☐ TODO | 2.2 | `examples/` directory with ready-to-run usage files (e.g., `run_charging_pad.sh`) |
-| 2.5 | **Install script** | ☐ TODO | 2.2 | One-command setup for new users (brew / npm / pip install) |
+| 2.1 | **Design CLI interface contract** | ✅ Done | 1.1 | Flags defined: `--keyword`, `--location`, `--pattern`, `--format`, `--verbose`, `--help`, `--list-patterns` |
+| 2.2 | **Build thin CLI wrapper** (Node.js, zero deps) | ✅ Done | 2.1 | `pattern-runner` executable + `lib/` modules (cli, checks, seed-data, formatter, pattern-loader) |
+| 2.3 | **CLI output formatting** | ✅ Done | 2.2 | Three modes: table (ANSI-colored), verbose (per-check), JSON (machine-readable) |
+| 2.4 | **Template / example files** | ✅ Done | 2.2 | `examples/` with 4 ready-to-run scripts |
+| 2.5 | **Install script** | ☐ TODO | 2.2 | One-command setup (brew / npm / pip). For now: clone + `ln -s` |
+
+**CLI delivers:**
+- `node pattern-runner --keyword "X" --location "US"` → colored report
+- `--verbose` → per-check detail for all products
+- `--format json` → machine-readable JSON
+- `--help` → usage guide
+- Simulated data (Google Trends proxy) with deterministic seed per keyword
+- Constraint Report on failure (most restrictive criterion + suggestion)
+- Exit code 0 if any product passed, 1 if all failed
 
 ---
 
@@ -62,12 +71,12 @@
 | ID | Task | Status | Dependencies | Notes |
 |---|---|---|---|---|
 | 3.1 | **Add `version` field to pattern schema** | ☐ TODO | — | `"version": "0.1"` root field. Process for creating new versions. |
-| 3.2 | **Restructure repo into pattern library** | ☐ TODO | 3.1 | Move current file to `patterns/mvp_research_v1.0.json`. CLI accepts `--pattern` flag. |
-| 3.3 | **Formalize pattern.schema.json (v0.1)** | 🔄 Revise | — | Schema exists. Review for completeness against the 30 questions. Add `extends`, `scope`, `memory` fields. |
+| 3.2 | **Restructure repo into pattern library** | ☐ TODO | 3.1 | Move current file to `patterns/mvp_research_v1.0.json`. CLI `--pattern` flag already supports this. |
+| 3.3 | **Formalize pattern.schema.json (v0.1)** | 🔄 Revise | — | Schema exists. Review for completeness against the 30 questions. |
 | 3.4 | **Create `schemas/interview.schema.json`** | ☐ TODO | 3.3 | Schema for interview.yaml output. |
 | 3.5 | **Create `schemas/runtime.schema.json`** | ☐ TODO | 3.3 | Schema for runtime execution config. |
 | 3.6 | **Establish pattern lifecycle docs** | ☐ TODO | 3.3 | How to create, version, deprecate, and archive patterns. |
-| 3.7 | **Remove duplicate `pattern.schema copy.json`** | ☐ TODO | — | Leftover from earlier work. |
+| 3.7 | **Remove duplicate `pattern.schema copy.json`** | ✅ Done | — | Cleaned up in M0.3. |
 
 ---
 
@@ -77,8 +86,8 @@
 
 | ID | Task | Status | Dependencies | Notes |
 |---|---|---|---|---|
-| 4.1 | **Automated failure analysis in CLI** | ☐ TODO | 2.2, 3.3 | Identify most restrictive constraint when pattern fails. |
-| 4.2 | **Constraint Report output** | ☐ TODO | 4.1 | "Research failed. Most restrictive: Q7 (Review Volume < 50). Found avg 75. Suggestion: increase to 100." |
+| 4.1 | **Automated failure analysis in CLI** | ✅ Done | 2.2, 3.3 | Implemented in `lib/checks.js` — identifies most restrictive criterion |
+| 4.2 | **Constraint Report output** | ✅ Done | 4.1 | Displayed in table output: criterion, failure count, average actual, suggestion |
 | 4.3 | **Execution trace log** | ☐ TODO | 3.3 | Per-phase log: which invariants checked, which passed/failed, how long each phase took. |
 | 4.4 | **Pattern metrics collector** | ☐ TODO | 3.3, 4.3 | Track: tokens consumed, latency, retries, success rate, constraint violation frequency. |
 
@@ -140,9 +149,10 @@
 | Repository initialization | ✅ Done | Git remote set, `.gitignore` ready |
 | **First commit + push** | ✅ **DONE** | Project scaffold in main |
 | README.md | 🔄 Needs revision | Good concept, needs beginner workflow focus |
-| user-guide.md | ❌ Stub | Must be expanded |
-| CLI wrapper | ❌ Not started | Highest-impact usability task |
-| Pattern library structure | ❌ Not started | `patterns/` directory |
+| **user-guide.md** | ✅ **Expanded** | CLI reference, output formats, FAQ |
+| **CLI wrapper (`pattern-runner`)** | ✅ **BUILT** | Zero-dependency Node.js, 3 output modes, constraint reports |
+| **Example scripts** | ✅ **CREATED** | 4 ready-to-run examples in `examples/` |
+| Pattern library structure (`patterns/`) | ❌ Not started | `patterns/` directory |
 | Compiler & Runtime | ❌ Not started | Core engine missing |
 | Benchmarks | ❌ Not started | Credibility gap |
 
@@ -182,14 +192,17 @@ git clone git@github.com:papajo/pattern-first.git
 cd pattern-first
 
 # Review core artifacts
-cat schemas/pattern.schema.json    # The contract
-cat docs/interview-method.md       # The process
-cat docs/worked-example.md         # The lifecycle
+cat pattern.schema.json          # The contract
+cat interview-method.md          # The process
+cat worked-example.md            # The lifecycle
 
-# Run a pattern (once CLI wrapper exists)
-pattern-runner --keyword "Wireless Charging Pad" --location "US"
+# Run a pattern
+node pattern-runner --keyword "Wireless Charging Pad" --location "US"
+
+# See all options
+node pattern-runner --help
 ```
 
 ---
 
-*Last updated: 2026-06-11 — Restructured from 4-phase plan into 8 milestone architecture aligned with `big-picture.md` vision and 30 skeptical questions.*
+*Last updated: 2026-06-11 — Milestone 2 (CLI Wrapper) complete: pattern-runner built with 3 output modes, constraint reports, example scripts.*

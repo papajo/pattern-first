@@ -1,0 +1,22 @@
+{
+  "name": "pattern-first-ai",
+  "version": "0.1.0",
+  "description": "Turn human intent into executable patterns — CLI runner for pattern-first AI execution",
+  "bin": {
+    "pattern-runner": "./pattern-runner"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git@github.com:papajo/pattern-first.git"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "files": [
+    "pattern-runner",
+    "lib/",
+    "patterns/",
+    "examples/"
+  ]
+}

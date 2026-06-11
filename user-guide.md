@@ -48,9 +48,9 @@ Interview → Compile → Pattern → Execute → Evaluate → Optimize
 
 ### Prerequisites
 
+- **Node.js** >= 18 (check with `node --version`)
 - Git
 - A CLI terminal
-- (Coming soon) The Pattern-First CLI wrapper
 
 ### Installation
 
@@ -59,27 +59,128 @@ git clone git@github.com:papajo/pattern-first.git
 cd pattern-first
 ```
 
+No npm install needed — the CLI uses zero dependencies (Node.js core modules only).
+
 ### First Run
 
-Once the CLI wrapper is built (see [Milestone 2](todos-tasks.md#-milestone-2-cli-wrapper--usability)):
-
 ```bash
-pattern-runner --keyword "Wireless Charging Pad" --location "US"
+node pattern-runner --keyword "Wireless Charging Pad" --location "US"
 ```
 
 The runner will:
-1. Load the MVP Research pattern
-2. Fetch Google Trends data
-3. Run 7 falsifiability checks (Q1–Q7)
-4. Output a ranked list of products that pass all checks
+1. Load the MVP Research pattern from `pattern-schema-test-results.json`
+2. Generate simulated product data (Google Trends proxy)
+3. Run 7 falsifiability checks (Q1–Q7) against each product
+4. Output ranked results: passing products first, then failures with a constraint report
 
-### Interpreting Results
+### Quick Examples
+
+```bash
+# Simple research query
+node pattern-runner --keyword "Yoga Mat" --location "DE"
+
+# Verbose mode — shows every check for every product
+node pattern-runner --keyword "Coffee Maker" --location "US" --verbose
+
+# JSON output — machine-readable for piping into other tools
+node pattern-runner --keyword "Smart Lighting" --location "US" --format json
+
+# Help
+node pattern-runner --help
+```
+
+### Using the Example Scripts
+
+Pre-built examples are in the `examples/` directory:
+
+```bash
+bash examples/run-wireless-charging-pad.sh
+bash examples/run-yoga-mat.sh
+bash examples/run-verbose.sh
+bash examples/run-json-output.sh
+```
+
+---
+
+## CLI Reference
+
+### Usage
+
+```
+pattern-runner --keyword <keyword> [options]
+```
+
+### Required
+
+| Flag | Alias | Description |
+|---|---|---|
+| `--keyword` | `-k` | Starting keyword for product research |
+
+### Options
+
+| Flag | Alias | Default | Description |
+|---|---|---|---|
+| `--location` | `-l` | `US` | Geographic market to research |
+| `--pattern` | `-p` | `pattern-schema-test-results.json` | Pattern file name or path |
+| `--format` | `-f` | `table` | Output format: `table` (default) or `json` |
+| `--verbose` | `-v` | off | Show per-check detail for every product |
+| `--help` | `-h` | — | Show usage help |
+| `--list-patterns` | — | — | List available pattern files in `patterns/` |
+
+### Exit Codes
+
+| Code | Meaning |
+|---|---|
+| 0 | At least one product passed all checks |
+| 1 | No products passed — all failed |
+
+---
+
+## Understanding the Output
+
+### Default (Table) Output
+
+The standard report shows:
+
+1. **Header** — Pattern name, keyword, location, data source
+2. **Summary** — Count of passing vs. total products
+3. **Passed products** — Each with all 7 metrics and check result icons
+4. **Failed products** — Each with failure count and first failure reason
+5. **Constraint Report** — Most restrictive criterion, how many products failed it, average actual value, and a suggestion for adjusting the threshold
+
+### Verbose Output
+
+Includes everything in the table output **plus** a per-check detail section listing every check (pass or fail) for every product with actual and threshold values.
+
+### JSON Output
+
+Machine-readable payload with:
+
+```json
+{
+  "runner": "pattern-first-ai",
+  "version": "0.1.0",
+  "keyword": "Wireless Charging Pad",
+  "location": "US",
+  "timestamp": "2026-06-11T...",
+  "summary": { "total": 10, "passedCount": 4, "failedCount": 6, "passedRate": 40 },
+  "constraintReport": { ... },
+  "products": {
+    "passed": [{ "id": "P001", "name": "...", "metrics": { ... } }],
+    "failed": [{ "id": "P002", "name": "...", "firstFailure": "Q1", ... }]
+  }
+}
+```
+
+---
+
+## Interpreting Results
 
 | Output | Meaning |
 |---|---|
 | **Product list (ranked)** | Products that passed all 7 checks |
-| **"No product met criteria"** | Every product failed at least one check. See Constraint Report for why. |
-| **Constraint Report** | Identifies the most restrictive criterion and suggests adjustments. |
+| **All products failed** | Every product failed at least one check. The Constraint Report identifies the most restrictive criterion and suggests adjustments. |
+| **Constraint Report** | Shows which criterion blocked the most products, their average metric value, and a suggestion for threshold tuning. |
 
 ---
 
@@ -100,11 +201,29 @@ The runner will:
 ## Architecture Overview
 
 ```
-docs/           ← Documentation (interview method, worked example, user guide)
-schemas/        ← JSON schemas for patterns, interviews, and runtime
-patterns/       ← Reusable pattern definitions
-examples/       ← Ready-to-run usage templates
+pattern-runner       ← Executable CLI (Node.js, zero deps)
+lib/
+  cli.js            ← Argument parsing
+  pattern-loader.js ← Pattern file loading & validation
+  runner.js         ← (embedded in pattern-runner) Main orchestration
+  checks.js         ← Falsifiability check engine
+  seed-data.js      ← Deterministic mock product data generator
+  formatter.js      ← Output formatting (table, verbose, JSON)
+examples/           ← Ready-to-run usage scripts
+patterns/           ← Reusable pattern definitions
 ```
+
+---
+
+## Customizing the Pattern
+
+The default pattern is `pattern-schema-test-results.json` in the project root. You can:
+
+- Edit the success criteria thresholds directly in the JSON file
+- Create new pattern files in the `patterns/` directory and select them with `--pattern`
+- Run `node pattern-runner --list-patterns` to see available patterns
+
+**Note:** The CLI uses simulated data for now. When real data sources are integrated, the pattern execution logic remains the same — only the data source changes.
 
 ---
 
@@ -128,11 +247,15 @@ A: No. Prompts are text that must be re-explained every run. Patterns are compil
 
 **Q: Do I need to write JSON?**
 
-A: Not directly. You go through the interview (a structured conversation). The compiler produces the pattern. A future CLI wrapper will hide all JSON from end users.
+A: Not directly. You go through the interview (a structured conversation). The compiler produces the pattern. The CLI runner abstracts the JSON — you just provide a keyword and location.
+
+**Q: Is the data real or simulated?**
+
+A: Currently simulated. The CLI generates deterministic mock data based on your keyword and location. The seed is reproducible: same keyword + location always produces the same products. Real data source integration (Google Trends API, etc.) is a future milestone.
 
 **Q: Can I export back to a prompt?**
 
-A: Yes. The `runtime.export_as_prompt` field tells the runtime it can serialize the pattern into a prompt string for tools that don't support structured execution.
+A: Yes. The `runtime.export_as_prompt` field in the schema tells the runtime it can serialize the pattern into a prompt string for tools that don't support structured execution.
 
 **Q: What should never become a pattern?**
 
@@ -144,8 +267,8 @@ A: One-off tasks. Unstable/exploratory work. Tasks where you don't yet know what
 
 1. Read the [Interview Method](docs/interview-method.md) to understand the 5-act process
 2. Study the [Worked Example](docs/worked-example.md) to see a full pattern lifecycle
-3. Check [todos-tasks.md](todos-tasks.md) for the current development milestone
-4. Watch for the CLI wrapper release (Milestone 2)
+3. Try the CLI: `node pattern-runner --keyword "Your Keyword" --location "US"`
+4. Check [todos-tasks.md](todos-tasks.md) for the current development milestone
 
 ---
 

@@ -1,0 +1,97 @@
+#!/usr/bin/env node
+
+/**
+ * pattern-runner — Pattern-First AI CLI
+ *
+ * Usage:
+ *   pattern-runner --keyword "Wireless Charging Pad" --location "US"
+ *   pattern-runner --keyword "Yoga Mat" --location "US" --verbose
+ *   pattern-runner --keyword "Coffee Maker" --location "DE" --format json
+ *   pattern-runner --help
+ *
+ * A thin CLI layer over pattern execution. Loads a pattern definition,
+ * generates simulated product data (Google Trends proxy), runs falsifiability
+ * checks, and prints ranked results.
+ */
+
+'use strict';
+
+const fs = require('fs');
+const path = require('path');
+
+// ─── Lib modules ───────────────────────────────────────────────────────────
+
+const { parseArgs, USAGE } = require('./lib/cli');
+const { loadPattern, findPattern } = require('./lib/pattern-loader');
+const { generateProducts } = require('./lib/seed-data');
+const { runChecks } = require('./lib/checks');
+const { formatReport, formatJson, formatVerbose } = require('./lib/formatter');
+
+// ─── Main ──────────────────────────────────────────────────────────────────
+
+function main() {
+  const args = parseArgs(process.argv.slice(2));
+
+  if (args.help) {
+    console.log(USAGE);
+    process.exit(0);
+  }
+
+  if (args.listPatterns) {
+    listPatterns();
+    process.exit(0);
+  }
+
+  if (!args.keyword) {
+    console.error('Error: --keyword is required.\n');
+    console.log(USAGE);
+    process.exit(1);
+  }
+
+  // Load pattern
+  const patternPath = args.pattern
+    ? findPattern(args.pattern)
+    : path.join(__dirname, 'pattern-schema-test-results.json');
+
+  let pattern;
+  try {
+    pattern = loadPattern(patternPath);
+  } catch (err) {
+    console.error(`Error loading pattern: ${err.message}`);
+    process.exit(1);
+  }
+
+  // Generate product data
+  const location = args.location || 'US';
+  const products = generateProducts(args.keyword, location, { count: 10 });
+
+  // Run checks
+  const results = runChecks(products, pattern);
+
+  // Output
+  if (args.format === 'json') {
+    console.log(formatJson(results, args));
+  } else if (args.verbose) {
+    console.log(formatVerbose(results, args, pattern));
+  } else {
+    console.log(formatReport(results, args, pattern));
+  }
+
+  // Exit code: 0 if at least one product passed, 1 if all failed
+  process.exit(results.passed.length > 0 ? 0 : 1);
+}
+
+function listPatterns() {
+  const patternsDir = path.join(__dirname, 'patterns');
+  if (!fs.existsSync(patternsDir)) {
+    console.log('No patterns directory found. Default pattern used: pattern-schema-test-results.json');
+    return;
+  }
+  const files = fs.readdirSync(patternsDir).filter(f => f.endsWith('.json'));
+  console.log('Available patterns:');
+  for (const f of files) {
+    console.log(`  - ${f.replace('.json', '')}`);
+  }
+}
+
+main();
