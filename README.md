@@ -5,19 +5,65 @@
 [![Status](https://img.shields.io/badge/status-active--development-blue)](#)
 [![CLI](https://img.shields.io/badge/CLI-ready-brightgreen)](#)
 
-Run a product research pattern with **one command**: no prompt engineering, no JSON wrangling.
+---
+
+## 🚀 Start Here: From Idea to Pattern
+
+Most dev teams start with a thought, a Slack message, or a half-baked prompt. **That is exactly where every pattern in this repo began.**
+
+This project gives you a method — not another prompt library — to turn that raw idea into a **reusable, executable pattern**:
+
+```
+Your idea or prompt
+       ↓
+  5-Act Interview  ← surfaces goal, checks, constraints, invariants
+       ↓
+  Compiled Pattern  ← machine-readable contract (committed to repo)
+       ↓
+  Runtime Execution  ← one command, deterministic results
+       ↓
+  Actionable Output  ← passing products + constraint report
+```
+
+➡️ **[See the full walkthrough →](docs/from-idea-to-pattern.md)**
+
+Or jump straight in:
 
 ```bash
+git clone git@github.com:papajo/pattern-first.git
+cd pattern-first
 node pattern-runner --keyword "Wireless Charging Pad" --location "US"
 ```
 
+---
+
+## Quick Demo
+
 ```text
+$ node pattern-runner --keyword "Wireless Charging Pad" --location "US"
+
+Pattern-First AI — Product Research Runner
+────────────────────────────────────────────────────
+Pattern:  ProductResearchMVP
+Keyword:  Wireless Charging Pad
+Location: US
+
 Results — 5 of 10 products passed all 7 checks
-✅ Smart Wireless Charging Pad     ★ Pass: 7/7
-✅ Wireless Charging Pad Max       ★ Pass: 7/7
-✅ Premium Wireless Charging Pad   ★ Pass: 7/7
-...
-📊 Constraint Report — Most restrictive: Q7 (Review Volume < 50)
+────────────────────────────────────────────────────
+
+✅ Products that PASSED
+  Pro Wireless Charging Pad        ★ Pass: 7/7
+  Wireless Charging Pad Max        ★ Pass: 7/7
+  ...
+
+❌ Products that FAILED
+  Eco Wireless Charging Pad        Failed 4/7 checks
+    First failure: Q1 (Market Share: 32% must be > 50%)
+
+📊 Constraint Report
+  Most restrictive: Q4 (Competition Count must be < 5)
+  Failed: 8 product(s) | Average actual: 8.9
+  💡 Consider decreasing the Competition Count threshold...
 ```
 
 ---
@@ -25,36 +71,26 @@ Results — 5 of 10 products passed all 7 checks
 ## The 3-Step Workflow
 
 ```
-[1] Input          [2] Pattern-First Engine      [3] Results
-┌─────────────┐    ┌──────────────────────────┐  ┌──────────────────┐
-│ keyword      │ →  │ 7 Falsifiability Checks  │ → │ Ranked products  │
-│ location     │    │ (like a super-rigorous   │   │ that passed      │
-│ (optional)   │    │  quality checklist)       │   │ all 7 checks    │
-│ pattern file │    │                          │   │                  │
-└─────────────┘    └──────────────────────────┘  └──────────────────┘
+[1] You provide          [2] Pattern Engine            [3] You get
+┌─────────────────┐    ┌──────────────────────────┐  ┌──────────────────────┐
+│ keyword          │ →  │ 7 Falsifiability Checks  │ → │ Ranked products     │
+│ location         │    │ (like a super-rigorous   │   │ that passed all 7   │
+│ (optional)       │    │  quality checklist)       │   │ Constraint Report   │
+│ pattern file     │    │                          │   │ on what blocked      │
+└─────────────────┘    └──────────────────────────┘  └──────────────────────┘
 ```
-
-**You provide** a keyword and a market location.
-
-**The engine runs** a structured checklist against simulated market data.
-
-**You get** a ranked list of products that passed every check — plus a Constraint Report explaining what blocked the others and how to adjust.
 
 ---
 
 ## What Problem Does This Solve?
 
-AI workflows today are dominated by:
+AI workflows today are dominated by bigger prompts, longer context windows, more retries, and more loops. This project flips the question from:
 
-* Bigger prompts
-* Longer context windows
-* More retries
-* More loops
-* More token consumption
+> "What prompt should I write?"
 
-This project explores an alternative: instead of optimizing *prompts*, we optimize **structure**.
+to:
 
-Users express intent once. The system extracts objectives, constraints, invariants, and evaluation criteria — and compiles them into **reusable execution patterns**.
+> "What execution pattern should I compile?"
 
 | Prompt Thinking | Pattern Thinking |
 |---|---|
@@ -63,35 +99,11 @@ Users express intent once. The system extracts objectives, constraints, invarian
 | "Retry if it goes wrong" | "Define what wrong means before running" |
 | "The prompt is the product" | "The pattern is the product" |
 
----
-
-## Core Idea
-
-**Traditional flow:** text → LLM → output (no structure)
-
-**Agent flow:** text → LLM → loop → evaluate → retry (still no structure)
-
-**Pattern-first flow:**
-
-```text
-Human
-↓
-Formal Interview  ← capture intent, constraints, invariants once
-↓
-Pattern Compiler  ← normalize into reusable decision structure
-↓
-Pattern Runtime   ← execute with guarantees, not guesses
-↓
-Output
-```
-
-Patterns become **reusable assets**. You compile once, execute many times.
+**Compile once. Execute many times.**
 
 ---
 
-## How It Works: The Checklist
-
-Think of it as a **super-rigorous quality checklist** for product research. Each product is scored against 7 falsifiability checks — pass all 7 and it's a viable opportunity.
+## How It Works: The 7-Check Flowchart
 
 ```mermaid
 flowchart LR
@@ -108,19 +120,19 @@ flowchart LR
     F -- No --> Z
     G -- Yes --> H{Q7: Review Volume < 50?}
     G -- No --> Z
-    H -- Yes --> I[✅ Pass — Product qualifies]
+    H -- Yes --> I[✅ Product qualifies]
     H -- No --> Z
 ```
 
-| Check | Metric | What It Measures | Passing |
-|---|---|---|---|
-| Q1 | Market Share | Is there meaningful demand? | > 50% |
-| Q2 | Search Volume | How many people search for it? | > 5,000 |
-| Q3 | Score | How competitive is the space? | < 10 |
-| Q4 | Competition Count | How many direct competitors? | < 5 |
-| Q5 | Profit Margin | Can you make money? | > 30% |
-| Q6 | Keyword Saturation | Are keywords already dominated? | < 3 |
-| Q7 | Review Volume | Is the market saturated? | < 50 |
+| Check | Metric | Pass Condition |
+|---|---|---|
+| Q1 | Market Share | > 50% |
+| Q2 | Search Volume | > 5,000 |
+| Q3 | Score | < 10 |
+| Q4 | Competition Count | < 5 |
+| Q5 | Profit Margin | > 30% |
+| Q6 | Keyword Saturation | < 3 |
+| Q7 | Review Volume | < 50 |
 
 ---
 
@@ -184,39 +196,10 @@ Options:
 
 ## Principles
 
-### 1. Prompts are authoring interfaces
-Prompts are temporary. Execution should run on structure.
-
-### 2. State beats context
-Persist decisions. Avoid retransmitting knowledge.
-
-### 3. Constraints outperform instructions
-Define boundaries. Allow execution freedom.
-
-### 4. Compile once, execute repeatedly
-Minimize repeated reasoning.
-
----
-
-## Architecture
-
-```text
-patterns/          ← Reusable pattern definitions (versioned)
-lib/               ← CLI engine (checks, formatter, seed data)
-  checks.js        ← Falsifiability check runner
-  seed-data.js     ← Deterministic mock data generator
-  formatter.js     ← Output formatting (table, verbose, JSON)
-examples/          ← Ready-to-run usage scripts
-```
-
-**Future layers** (see [todos-tasks.md](todos-tasks.md)):
-
-```text
-acquisition/   ← Interview → pattern
-compiler/      ← interview.yaml → pattern.yaml
-runtime/       ← Multi-phase executor with invariant enforcement
-optimizer/     ← Benchmark, compress, evolve patterns
-```
+1. **Prompts are authoring interfaces** — Execution should run on structure, not text.
+2. **State beats context** — Persist decisions. Avoid retransmitting knowledge.
+3. **Constraints outperform instructions** — Define boundaries. Allow execution freedom.
+4. **Compile once, execute repeatedly** — Minimize repeated reasoning.
 
 ---
 
@@ -224,12 +207,13 @@ optimizer/     ← Benchmark, compress, evolve patterns
 
 | Area | Status |
 |---|---|
-| Pattern schema | ✅ v0.1 defined |
-| Interview method | ✅ Documented |
 | CLI runner | ✅ Ready (`pattern-runner`) |
 | MVP Research Pattern | ✅ Validated with 7 checks |
-| User guide | ✅ Expanded with CLI reference |
-| README (beginner workflow) | ✅ This version |
+| From idea to pattern walkthrough | ✅ [New guide](docs/from-idea-to-pattern.md) |
+| Pattern schema | ✅ v0.1 defined |
+| Interview method | ✅ [Documented](interview-method.md) |
+| Worked example | ✅ [Full lifecycle](worked-example.md) |
+| User guide | ✅ [CLI reference](user-guide.md) |
 | Pattern library | 📅 Next |
 | Compiler & Runtime | 📅 Planned |
 | Real data integration | 📅 Planned |
@@ -240,11 +224,12 @@ See [todos-tasks.md](todos-tasks.md) for the full roadmap.
 
 ## Further Reading
 
-- [User Guide](user-guide.md) — Detailed CLI reference, output formats, FAQ
-- [Interview Method](interview-method.md) — How to capture intent as structure
-- [Worked Example](worked-example.md) — Full lifecycle: prompt → interview → pattern → execution
-- [Pattern Schema](pattern.schema.json) — The machine-readable contract
-- [Todos & Roadmap](todos-tasks.md) — Current milestone and planned work
+- **[From Idea to Pattern](docs/from-idea-to-pattern.md)** — Step-by-step walkthrough of the full pipeline
+- **[User Guide](user-guide.md)** — CLI reference, output formats, FAQ
+- **[Interview Method](interview-method.md)** — How to capture intent as structure
+- **[Worked Example](worked-example.md)** — Full lifecycle: prompt → interview → pattern → execution
+- **[Pattern Schema](pattern.schema.json)** — The machine-readable contract
+- **[Backlog & Roadmap](todos-tasks.md)** — Current milestone and planned work
 
 ---
 

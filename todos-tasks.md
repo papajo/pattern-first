@@ -14,7 +14,7 @@
 | 0.1 | Initialize git repo, configure `.gitignore` | ✅ Done | `.atl/`, `node_modules`, `files.zip`, `big-picture.md`, `redesign-thoughts.md` excluded |
 | 0.2 | Verify remote origin (`git@github.com:papajo/pattern-first.git`) | ✅ Done | |
 | 0.3 | Clean up stray / duplicate files | ✅ Done | Removed `pattern.schema copy.json` |
-| 0.4 | Organize file tree: `docs/`, `schemas/`, `patterns/` structure | 🔄 Revise | `lib/`, `examples/` created. `docs/` and `schemas/` folders pending. |
+| 0.4 | Organize file tree: `docs/`, `schemas/`, `patterns/` structure | 🔄 Revise | `lib/`, `examples/`, `docs/` created. `schemas/` and `patterns/` pending. |
 | 0.5 | **First commit + push** — project scaffold + core docs | ✅ DONE | Commit `638e79c` |
 
 ---
@@ -26,7 +26,7 @@
 | ID | Task | Status | Dependencies | Notes |
 |---|---|---|---|---|
 | 1.1 | **[README.md] High-Level Guide** | ✅ Done | — | Focus on *workflow*, not code. 3-Step Workflow at top, CLI demo, simplified language. |
-| 1.2 | **[README.md] Conceptual Flowchart** | ✅ Done | 1.1 | Mermaid diagram: Input → 7 Falsifiability checks → Pass/Reject. See `README.md`. |
+| 1.2 | **[README.md] Conceptual Flowchart** | ✅ Done | 1.1 | Mermaid diagram: Input → 7 Falsifiability checks → Pass/Reject. |
 | 1.3 | **[user-guide.md] Expand into real user guide** | ✅ Done | 1.0 | Expanded with CLI reference, output formats, FAQ. |
 | 1.4 | **[docs/interview-method.md] Finalize as standalone doc** | 🔄 Revise | — | Already exists. Linked from README. |
 | 1.5 | **[docs/worked-example.md] Finalize as standalone doc** | 🔄 Revise | — | Already exists. Linked from README. |
@@ -34,6 +34,7 @@
 | 1.7 | **Answer the "30 skeptical questions"** | ☐ TODO | 1.0 | `big-picture.md` contains 30 critical questions. Each needs a documented answer. |
 | 1.8 | **CONTRIBUTING.md** | ☐ TODO | 1.1 | Guidelines: submit patterns, not prompts. |
 | 1.9 | **CHANGELOG.md** | ☐ TODO | 1.0 | Track changes from the start. |
+| 1.10 | **✨ [docs/from-idea-to-pattern.md] Pipeline walkthrough** | ✅ Done | — | Visual step-by-step: raw idea → interview → compiled pattern → execution → output. |
 
 **30 Skeptical Questions Reference** (`big-picture.md`):
 - Categories: Is this new? (Q1-5), Does it reduce cost? (Q6-9), Pattern behavior (Q10-15), Adoption friction (Q16-19), Trust/failure (Q20-25), Uncomfortable truths (Q26-30).
@@ -53,15 +54,6 @@
 | 2.4 | **Template / example files** | ✅ Done | 2.2 | `examples/` with 4 ready-to-run scripts |
 | 2.5 | **Install script** | ☐ TODO | 2.2 | One-command setup (brew / npm / pip). For now: clone + `ln -s` |
 
-**CLI delivers:**
-- `node pattern-runner --keyword "X" --location "US"` → colored report
-- `--verbose` → per-check detail for all products
-- `--format json` → machine-readable JSON
-- `--help` → usage guide
-- Simulated data (Google Trends proxy) with deterministic seed per keyword
-- Constraint Report on failure (most restrictive criterion + suggestion)
-- Exit code 0 if any product passed, 1 if all failed
-
 ---
 
 ## 🔷 Milestone 3: Pattern Infrastructure & Versioning (The "Developer" View)
@@ -72,7 +64,7 @@
 |---|---|---|---|---|
 | 3.1 | **Add `version` field to pattern schema** | ☐ TODO | — | `"version": "0.1"` root field. Process for creating new versions. |
 | 3.2 | **Restructure repo into pattern library** | ☐ TODO | 3.1 | Move current file to `patterns/mvp_research_v1.0.json`. CLI `--pattern` flag already supports this. |
-| 3.3 | **Formalize pattern.schema.json (v0.1)** | 🔄 Revise | — | Schema exists. Review for completeness against the 30 questions. |
+| 3.3 | **Formalize pattern.schema.json (v0.1)** | 🔄 Revise | — | Schema exists. Review for completeness. |
 | 3.4 | **Create `schemas/interview.schema.json`** | ☐ TODO | 3.3 | Schema for interview.yaml output. |
 | 3.5 | **Create `schemas/runtime.schema.json`** | ☐ TODO | 3.3 | Schema for runtime execution config. |
 | 3.6 | **Establish pattern lifecycle docs** | ☐ TODO | 3.3 | How to create, version, deprecate, and archive patterns. |
@@ -99,12 +91,12 @@
 
 | ID | Task | Status | Dependencies | Notes |
 |---|---|---|---|---|
-| 5.1 | **Compiler: interview → pattern** | ☐ TODO | 1.4, 3.3 | Convert `interview.yaml` → `pattern.yaml`. Validate constraints, resolve contradictions, normalize phases. |
-| 5.2 | **Runtime executor** | ☐ TODO | 2.2, 3.3 | Execute compiled patterns phase-by-phase. Enforce invariants at pre/post/continuous checkpoints. |
-| 5.3 | **Runtime memory manager** | ☐ TODO | 5.2 | Handle `stateless`, `session`, `persistent`, `compressed` strategies. Carry forward named state keys. |
-| 5.4 | **Phase-level rerun support** | ☐ TODO | 5.2 | User can say "redo authentication section" without full rerun (from worked-example insight). |
-| 5.5 | **Human review workflow** | ☐ TODO | 5.2 | `human_review: required` → approve / reject-section / reject-all workflow encoded in pattern. |
-| 5.6 | **Multi-runtime support** | ☐ TODO | 5.2 | Compatible with: Claude Code, Cursor, local Ollama, direct CLI. |
+| 5.1 | **Compiler: interview → pattern** | ☐ TODO | 1.4, 3.3 | Convert `interview.yaml` → `pattern.yaml`. Validate constraints, resolve contradictions. |
+| 5.2 | **Runtime executor** | ☐ TODO | 2.2, 3.3 | Execute compiled patterns phase-by-phase. Enforce invariants at checkpoints. |
+| 5.3 | **Runtime memory manager** | ☐ TODO | 5.2 | Handle stateless, session, persistent, compressed strategies. |
+| 5.4 | **Phase-level rerun support** | ☐ TODO | 5.2 | User can redo one section without full rerun. |
+| 5.5 | **Human review workflow** | ☐ TODO | 5.2 | Approve / reject-section / reject-all workflow. |
+| 5.6 | **Multi-runtime support** | ☐ TODO | 5.2 | Compatible with: Claude Code, Cursor, local Ollama. |
 
 ---
 
@@ -130,10 +122,10 @@
 | ID | Task | Status | Dependencies | Notes |
 |---|---|---|---|---|
 | 7.1 | **Establish benchmark methodology** | ☐ TODO | 5.2 | What we measure: tokens, latency, retries, quality score, pattern reuse frequency. |
-| 7.2 | **Prompt vs. Loop vs. Pattern benchmark** | ☐ TODO | 7.1, 5.2 | Same task executed 3 ways. Measure all 5 metrics. Publication-ready. |
-| 7.3 | **Pattern compression optimizer** | ☐ TODO | 7.2 | Reduce pattern size over time via token dedup, invariant consolidation. |
+| 7.2 | **Prompt vs. Loop vs. Pattern benchmark** | ☐ TODO | 7.1, 5.2 | Same task executed 3 ways. Measure all 5 metrics. |
+| 7.3 | **Pattern compression optimizer** | ☐ TODO | 7.2 | Reduce pattern size via token dedup, invariant consolidation. |
 | 7.4 | **Pattern drift detection** | ☐ TODO | 7.2 | Detect when pattern output quality degrades across runs. |
-| 7.5 | **Pattern evolution / distillation** | ☐ TODO | 7.3 | When a pattern stabilizes, can we distill it into a smaller model? |
+| 7.5 | **Pattern evolution / distillation** | ☐ TODO | 7.3 | When a pattern stabilizes, distill into a smaller model. |
 
 ---
 
@@ -144,11 +136,11 @@
 | Pattern schema (`pattern.schema.json`) | ✅ Defined | v0.1, covers intent, constraints, invariants, phases, evaluation, runtime |
 | Interview method (`interview-method.md`) | ✅ Documented | 5-act interview structure |
 | Worked example (`worked-example.md`) | ✅ Documented | Full API docs pattern lifecycle |
+| **From idea to pattern walkthrough** | ✅ **NEW** | `docs/from-idea-to-pattern.md` — visual pipeline guide |
 | MVP validation (`pattern-schema-test-results.json`) | ✅ Validated | ProductResearchMVP with 7 falsifiability checks |
 | Test run (`test-run-deploy.md`) | ✅ Documented | Full conversation history |
 | Repository initialization | ✅ Done | Git remote set, `.gitignore` ready |
-| **First commit + push** | ✅ **DONE** | Project scaffold in main |
-| **README.md** | ✅ **Revised** | Beginner workflow, Mermaid flowchart, CLI demo |
+| **README.md** | ✅ **Revised** | Beginner workflow, "Start Here" section, Mermaid flowchart, CLI demo |
 | **user-guide.md** | ✅ **Expanded** | CLI reference, output formats, FAQ |
 | **CLI wrapper (`pattern-runner`)** | ✅ **BUILT** | Zero-dependency Node.js, 3 output modes, constraint reports |
 | **Example scripts** | ✅ **CREATED** | 4 ready-to-run examples in `examples/` |
@@ -191,8 +183,11 @@ optimizer/     ← compress, benchmark, evolve patterns
 git clone git@github.com:papajo/pattern-first.git
 cd pattern-first
 
-# Try the CLI
-node pattern-runner --keyword "Wireless Charging Pad" --location "US"
+# Start here — understand the pipeline
+cat docs/from-idea-to-pattern.md
+
+# Then run the CLI
+node pattern-runner --keyword "Your Idea" --location "US"
 
 # Or use an example script
 bash examples/run-wireless-charging-pad.sh
@@ -200,4 +195,4 @@ bash examples/run-wireless-charging-pad.sh
 
 ---
 
-*Last updated: 2026-06-11 — Milestone 1 (Documentation) complete: README revised with beginner workflow + Mermaid flowchart. M2 (CLI) and M4 (Constraint Reports) also done.*
+*Last updated: 2026-06-11 — Added from-idea-to-pattern.md walkthrough. M1 (docs) and M2 (CLI) complete. M4 (constraint reports) also done.*
